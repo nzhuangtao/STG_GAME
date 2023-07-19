@@ -18,7 +18,10 @@ class Level extends BaseScene{
         this.player = new Player(1,this);
         this.enemies = [];
         this.enemy_index = 0;
-        this.bullets = [];
+
+        this.player_bullets = {};
+        this.enemy_bullets = {};
+
         this.bossIndex=0;
         this.boss = new Boss(this.bossIndex,this);
     }
@@ -33,21 +36,18 @@ class Level extends BaseScene{
         BaseScene.prototype.update.apply(this, arguments);
         this.player.update();
         this.bulletUpdate();
+        this.boss.update();
     }
     bulletUpdate(){
-        for(let i=0;i<this.bullets.length;i++){
-            this.bullets[i].update();
-            this.bullets[i].removeOutOfStage();
-        };
-        for(let i=0;i<this.bullets.length;i++){
-            this.bullets[i].handleCollision(this.boss);
+        for(let key in this.player_bullets){
+            this.player_bullets[key].update();
         };
     }
     draw(){
-        this.player.draw();
-        for(let i=0;i<this.bullets.length;i++){
-            this.bullets[i].draw();
-        };
+        // this.player.draw();
+        // for(let key in this.player_bullets){
+        //     this.player_bullets[key].draw();
+        // };
     }
 }
 export default Level;

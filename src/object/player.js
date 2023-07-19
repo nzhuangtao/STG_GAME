@@ -1,6 +1,7 @@
-import Bullet from "./bullet";
+import Bullet from "./playerBullet";
 import BaseObject from "./object";
 import * as PIXI from 'pixi.js';
+import bullet_type from "../data/bullet";
 class Player extends BaseObject {
     constructor(id, scene) {
         super(id, scene);
@@ -12,6 +13,7 @@ class Player extends BaseObject {
         this.image = 'player';
         this.speed = 200;
         this.bulletIndex = 0;
+        this.bulletType = bullet_type[4];
     }
     init() {
         this.x = 640 / 2 - this.spriteWidth / 2;
@@ -70,15 +72,19 @@ class Player extends BaseObject {
   
         if(this.frame_count%5!=0) return 0;
         let bullet = new Bullet(this.bulletIndex,this.scene);
+        // 传参数确定子弹位置与样式
         let params = {
             x:this.x,
             y:this.y,
-            width:16,
-            height:16
+            width:this.bulletType.width,
+            height:this.bulletType.height,
+            indexX:this.bulletType.indexX,
+            indexY:this.bulletType.indexY
         };
+        
         bullet.init(params);
         this.bulletIndex++;
-        this.scene.bullets.push(bullet);
+        this.scene.player_bullets[this.bulletIndex] = bullet;
     }
     draw() {
         if (this.frame_count % 5 == 0) {

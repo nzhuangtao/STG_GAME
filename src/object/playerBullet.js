@@ -1,25 +1,22 @@
 import BaseObject from "./object";
-
-class Bullet extends BaseObject {
+class PlayerBullet extends BaseObject {
     constructor(id, scene) {
         super(id, scene);
-        this.speed = 10;
+        this.speed = 200;
+        this.direction = -1;
     }
     init(params) {
+        this.image = 'bullet';
         this.x = params.x;
         this.y = params.y;
-        this.image = 'bullet';
-        this.indexX = 2;
-        this.indexY = 3;
+        this.indexX = params.indexX||0;
+        this.indexY = params.indexY||0;
         this.spriteWidth = params.width;
         this.spriteHeight = params.height;
         BaseObject.prototype.init.apply(this, arguments);
     }
-    runWay() {
-        this.y -= this.speed;
-    }
     update() {
-        this.runWay()
+        this.y += (this.speed * this.direction)*(1/30);
         this.sprite.x = this.x;
         this.sprite.y = this.y;
     }
@@ -29,7 +26,7 @@ class Bullet extends BaseObject {
         };
     }
     draw() {
-        BaseObject.prototype.draw.apply(this, arguments);
+        // BaseObject.prototype.draw.apply(this, arguments);
     }
     remove(){
         let index = this.scene.bullets.findIndex((b) => {
@@ -46,4 +43,4 @@ class Bullet extends BaseObject {
         };
     }
 }
-export default Bullet;
+export default PlayerBullet;

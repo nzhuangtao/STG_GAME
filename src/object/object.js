@@ -31,9 +31,9 @@ class BaseObject {
         this.frame_count++;
     }
     draw() {
-        let rectangle = new PIXI.Rectangle(this.indexX * this.spriteWidth, this.indexY * this.spriteHeight, this.spriteWidth, this.spriteHeight);
-        this.texture.frame = rectangle;
-        this.sprite.sprite = this.texture;
+        // let rectangle = new PIXI.Rectangle(this.indexX * this.spriteWidth, this.indexY * this.spriteHeight, this.spriteWidth, this.spriteHeight);
+        // this.texture.frame = rectangle;
+        // this.sprite.sprite = this.texture;
     }
     checkCollision(obj) {
         let spriteLeft = this.x - this.spriteWidth / 2,

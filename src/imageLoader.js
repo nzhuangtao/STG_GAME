@@ -10,5 +10,5 @@ export function imageLoader(){
     PIXI.Assets.addBundle('images', images);
 }
 export function getImageByName(name){
-    return PIXI.utils.TextureCache[name];
+    return PIXI.Assets.get(name);
 }
