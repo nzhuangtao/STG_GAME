@@ -29,9 +29,6 @@ class BaseObject {
     }
     update() {
         this.frame_count++;
-        if(this.frame_count>3*60*60){
-            this.frame_count = 0;
-        };
     }
     draw() {
         let rectangle = new PIXI.Rectangle(this.indexX * this.spriteWidth, this.indexY * this.spriteHeight, this.spriteWidth, this.spriteHeight);

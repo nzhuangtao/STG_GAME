@@ -4,7 +4,8 @@ export function imageLoader(){
         player:'./images/player.png',
         enemy:'./images/enemy.png',
         bullet:'./images/bullet.png',
-        mokou:"./images/mokou.png"
+        mokou:"./images/mokou.png",
+        stage1_bg:"./images/stage1_bg.jpg"
     };
     PIXI.Assets.addBundle('images', images);
 }
