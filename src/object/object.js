@@ -26,6 +26,7 @@ class BaseObject {
         this.sprite.anchor.set(0.5);
         this.sprite.x = this.x;
         this.sprite.y = this.y;
+       
         this.scene.stage.addChild(this.sprite);
     }
     update() {
