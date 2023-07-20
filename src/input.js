@@ -10,7 +10,7 @@ class Input {
         this.before_keyflag = null;
     }
     handleKeyDown(e) {
-      
+
         this.keyflag |= this._keyCodeToBitCode(e.keyCode);
         e.preventDefault();
     }
@@ -60,7 +60,7 @@ class Input {
     iskeyPush(flag) {
         return !(this.before_keyflag & flag) && this.keyflag & flag;
     }
-    iskeyDown(flag){
+    iskeyDown(flag) {
         return this.keyflag & flag;
     }
 }

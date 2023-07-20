@@ -1,3 +1,4 @@
+import Bullet from "./bullet";
 import BaseObject from "./object";
 import * as PIXI from 'pixi.js';
 class Player extends BaseObject {
@@ -9,8 +10,8 @@ class Player extends BaseObject {
         this.spriteWidth = 32;
         this.spriteHeight = 48;
         this.image = 'player';
-        this.directionX = 0;
         this.speed = 200;
+        this.bulletIndex = 0;
     }
     init() {
         this.x = 640 / 2 - this.spriteWidth / 2;
@@ -51,22 +52,33 @@ class Player extends BaseObject {
         if (this.x < 0) {
             this.x = 0;
         }
-        if (this.x > 640) {
-            this.x = 640;
+        if (this.x > 640 - this.spriteWidth) {
+            this.x = 640 - this.spriteWidth;
         }
         if (this.y < 0) {
             this.y = 0;
 
         }
-        if (this.y > 480) {
-            this.y = 480;
+        if (this.y > 480 - this.spriteHeight) {
+            this.y = 480 - this.spriteHeight;
 
         }
         this.sprite.x = this.x;
         this.sprite.y = this.y;
     }
     shot() {
-        console.log("发射子弹");
+  
+        if(this.frame_count%5!=0) return 0;
+        let bullet = new Bullet(this.bulletIndex,this.scene);
+        let params = {
+            x:this.x,
+            y:this.y,
+            width:16,
+            height:16
+        };
+        bullet.init(params);
+        this.bulletIndex++;
+        this.scene.bullets.push(bullet);
     }
     draw() {
         if (this.frame_count % 5 == 0) {
