@@ -17,24 +17,31 @@ class BaseObject {
         this.sprite = null;
     }
     init() {
-        this.texture = getImageByName(this.image);
-
+        let texture = getImageByName(this.image);
+        this.texture = new PIXI.Texture(texture);
         let rectangle = new PIXI.Rectangle(this.indexX * this.spriteWidth, this.indexY * this.spriteHeight, this.spriteWidth, this.spriteHeight);
         this.texture.frame = rectangle;
         this.sprite = new PIXI.Sprite(this.texture);
+        this.sprite.anchor.set(0.5);
         this.sprite.x = this.x;
         this.sprite.y = this.y;
-        this.sprite.anchor.set(0.5);
         this.scene.stage.addChild(this.sprite);
     }
     update() {
         this.frame_count++;
     }
     draw() {
+        // 重新绘制精灵
         let rectangle = new PIXI.Rectangle(this.indexX * this.spriteWidth, this.indexY * this.spriteHeight, this.spriteWidth, this.spriteHeight);
         this.texture.frame = rectangle;
         this.sprite.sprite = this.texture;
     }
+    outOfStage(){
+        if(this.y > 580 || this.x < -100 || this.x > 740 || this.y < -100){
+            return true;
+        };
+    }
+    
     checkCollision(obj) {
         let spriteLeft = this.x - this.spriteWidth / 2,
             spriteRight = this.x + this.spriteWidth / 2,

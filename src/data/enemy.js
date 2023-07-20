@@ -1,17 +1,15 @@
-let enemy_params = [
+let enemy_list = [
    
 ]
 for(let i=0;i<5;i++){
-    let obj =  {
-        count:(i+1)*60,
-        x:640/2,
+    let enemy =  {
+        count:(i+1)*30,
+        x:(i+1)*30,
         y:0,
         type:1,
-        runType:2,
-        directionX:0,
-        directionY:1,
+        moveType:5, 
     };
-    enemy_params.push(obj)
+    enemy_list.push(enemy)
 };
 
 let enemy_type = {
@@ -24,6 +22,6 @@ let enemy_type = {
     }
 }
 export {
-    enemy_params,
+    enemy_list,
     enemy_type
 }

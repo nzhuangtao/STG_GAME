@@ -1,18 +1,18 @@
 import BaseObject from "./object";
 
-class Bullet extends BaseObject {
+class PlayerBullet extends BaseObject {
     constructor(id, scene) {
         super(id, scene);
         this.speed = 10;
     }
-    init(params) {
-        this.x = params.x;
-        this.y = params.y;
+    init() {
+        this.x = this.scene.player.x;
+        this.y = this.scene.player.y;
         this.image = 'bullet';
         this.indexX = 2;
         this.indexY = 3;
-        this.spriteWidth = params.width;
-        this.spriteHeight = params.height;
+        this.spriteWidth = 16;
+        this.spriteHeight = 16;
         BaseObject.prototype.init.apply(this, arguments);
     }
     runWay() {
@@ -20,8 +20,6 @@ class Bullet extends BaseObject {
     }
     update() {
         this.runWay()
-        this.sprite.x = this.x;
-        this.sprite.y = this.y;
     }
     removeOutOfStage(){
         if (this.y < 0) {
@@ -29,6 +27,8 @@ class Bullet extends BaseObject {
         };
     }
     draw() {
+        this.sprite.x = this.x;
+        this.sprite.y = this.y;
         BaseObject.prototype.draw.apply(this, arguments);
     }
     remove(){
@@ -46,4 +46,4 @@ class Bullet extends BaseObject {
         };
     }
 }
-export default Bullet;
+export default PlayerBullet;

@@ -1,47 +1,61 @@
+
+import * as PIXI from 'pixi.js';
 import BaseScene from "./base";
-import * as PIXI from 'pixi.js'
 import Player from "../object/player";
-
-
-class Level extends BaseScene{
+import PlayerBulletManager from "../manager/playerBullet";
+import EnemyManager from "../manager/enemy";
+import { enemy_list } from '../data/enemy';
+class Level extends BaseScene {
     SHOT_STATE = 1; // 正在游戏
     PAUSE_STATE = 2; // 暂停游戏
     GAMEOVER_STATE = 3; // 游戏结束
-    constructor(game){
+    constructor(game) {
         super(game)
         this.score = 0;
         this.bomb = 0;
         this.state = this.SHOT_STATE;
-        this.player = new Player(1,this);
+        this.player = new Player(1, this);
         this.enemies = [];
         this.enemy_index = 0;
+        this.enemy_list = enemy_list;
+        this.playerBulletManager = new PlayerBulletManager(this);
+        this.enemyManager = new EnemyManager(this);
     }
-    init(){
+    init() {
         this.state = this.SHOT_STATE;
         this.score = 0;
         this.bomb = 2;
         this.player.init();
-        this.boss.init();
+        // 全部敌人设置为没有生成状态
+        for (let i = 0; i < enemy_list.length; i++) {
+            let enemy = this.enemy_list[i];
+            enemy.isExist = false;
+        };
     }
-    update(){
+    update() {
         BaseScene.prototype.update.apply(this, arguments);
         this.player.update();
-        this.bulletUpdate();
-    }
-    bulletUpdate(){
-        for(let i=0;i<this.bullets.length;i++){
-            this.bullets[i].update();
-            this.bullets[i].removeOutOfStage();
+        this.playerBulletManager.update();
+        this.enemyManager.update();
+        // 检查是否需要生成敌人
+        if (this.enemy_index < this.enemy_list.length) {
+            for (let i = 0; i < enemy_list.length; i++) {
+                let enemy = this.enemy_list[i];
+                if (!enemy.isExist && enemy.count <= this.frame_count) {
+                    // 标记为已生成
+                    enemy.isExist = true;
+                    this.enemyManager.create(enemy);
+                    // 已生成敌人数目增加
+                    this.enemy_index++;
+                };
+            }
         };
-        for(let i=0;i<this.bullets.length;i++){
-            this.bullets[i].handleCollision(this.boss);
-        };
+
     }
-    draw(){
+    draw() {
         this.player.draw();
-        for(let i=0;i<this.bullets.length;i++){
-            this.bullets[i].draw();
-        };
+        this.playerBulletManager.draw();
+        this.enemyManager.draw();
     }
 }
 export default Level;

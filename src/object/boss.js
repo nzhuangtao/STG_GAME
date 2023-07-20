@@ -1,5 +1,5 @@
 import BaseObject from "./object";
-import Bullet from "./bullet";
+import Bullet from "./playerBullet";
 class Boss extends BaseObject{
     constructor(id,scene){
         super(id,scene);
