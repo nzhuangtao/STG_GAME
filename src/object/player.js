@@ -1,7 +1,3 @@
-<<<<<<< HEAD
-import Bullet from "./playerBullet";
-=======
->>>>>>> c2847702040ae4b45be300fe827d393e09e165db
 import BaseObject from "./object";
 import * as PIXI from 'pixi.js';
 import bullet_type from "../data/bullet";
@@ -15,11 +11,6 @@ class Player extends BaseObject {
         this.spriteHeight = 48;
         this.image = 'player';
         this.speed = 200;
-<<<<<<< HEAD
-        this.bulletIndex = 0;
-        this.bulletType = bullet_type[4];
-=======
->>>>>>> c2847702040ae4b45be300fe827d393e09e165db
     }
     init() {
         this.x = 640 / 2 - this.spriteWidth / 2;
@@ -69,7 +60,6 @@ class Player extends BaseObject {
         }
         if (this.y > 480 - this.spriteHeight) {
             this.y = 480 - this.spriteHeight;
-
         }
     }
     shot() {
