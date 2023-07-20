@@ -50,7 +50,7 @@ class Level extends BaseScene{
     }
     showBackground(){
         let texture = getImageByName('stage1_bg');
-        console.log(texture)
+   
         let sprite1 = new PIXI.Sprite(texture);
         let sprite2 = new PIXI.Sprite(texture);
         this.bg1 = sprite1;
