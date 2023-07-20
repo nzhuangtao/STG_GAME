@@ -1,5 +1,6 @@
 import BaseObject from "./object";
 import { enemy_type } from "../data/enemy";
+import bullet_type from "../data/bullet";
 class Enemy extends BaseObject {
     constructor(id, scene) {
         super(id, scene);
@@ -51,134 +52,119 @@ class Enemy extends BaseObject {
             default:
                 break;
         }
-        if (this.shotIndex >= this.bullets.length) {
-            //
-        } else {
-            //console.log(this.bullets)
+        if (this.shotIndex < this.bullets.length) {
             let shotInfo = this.bullets[this.shotIndex];
             if (shotInfo.count < this.frame_count) {
-                this.shot(shotInfo.type);
+                this.shot(shotInfo);
                 this.shotIndex++;
-            }
-        }
+            };
+        };
     }
-    shot(type) {
-        switch (type) {
+    shot(shotInfo) {
+        let { type, num, moveType } = shotInfo;
+        // 主要决定子弹的样式
+        let bulletType = bullet_type[type];
+        switch (moveType) {
             case 1:
-                // 向正前方发射5颗子弹,发射1次
-                this.shotLinearBullet();
+                // 直线弹
+                this.shotLinearBullet(bulletType, num);
                 break;
             case 2:
                 // 散弹
-                this.shotScatteringBullet();
+                this.shotScatteringBullet(bulletType, num);
                 break;
             case 3:
                 // 瞄准玩家的子弹
-                this.aimedPlayerBullet();
+                this.aimedPlayerBullet(bulletType, num);
                 break;
             case 4:
                 // 环形子弹
-                this.shotRingBullet();
+                this.shotRingBullet(bulletType, num);
                 break;
             case 5:
-                // 环形曲线子弹
-                this.shotRingCurveBullet();
                 break;
             default:
                 break;
         }
     }
     // 发射散弹
-    shotScatteringBullet() {
+    shotScatteringBullet(bulletType, num = 6) {
         let start = 165;
         let step = 30;
         for (let i = 0; i < 6; i++) {
             let parmas = {
-                indexX: 4,
-                indexY: 2,
-                width: 16,
-                height: 16,
                 x: this.x,
                 y: this.y,
                 moveType: 2,
-                speed: 10,
+                speed: 100,
                 angle: start - i * step
             };
+            parmas = Object.assign(parmas, bulletType);
             this.scene.enemyBulletManager.create(parmas);
         };
     }
-    // 环形曲线弹
-    shotRingCurveBullet() {
-        let start = 0;
+    // 曲线弹
+    shotCurveBullet() {
         let step = 360 / 6;
         for (let i = 0; i < 6; i++) {
             for (let j = 0; j < 3; j++) {
                 let parmas = {
-                    indexX: 4,
-                    indexY: 2,
-                    width: 16,
-                    height: 16,
                     x: this.x,
                     y: this.y,
                     moveType: 4,
-                    speed: j*10,
-                    angle: i*step+j*10,
+                    speed: j * 10,
+                    angle: i * step + j * 10,
                 };
+                parmas = Object.assign(parmas, bulletType);
                 this.scene.enemyBulletManager.create(parmas);
             }
         }
     }
-    shotRingBullet() {
-        let start = 0;
+    shotRingBullet(bulletType, num) {
+        //console.log('')
         let step = 360 / 12;
         for (let i = 0; i < 12; i++) {
             let parmas = {
-                indexX: 4,
-                indexY: 2,
-                width: 16,
-                height: 16,
                 x: this.x,
                 y: this.y,
-                moveType: 3,
-                speed: 10,
+                moveType: 2,
+                speed: 200 + i * 10,
                 angle: i * step,
             };
+            parmas = Object.assign(parmas, bulletType);
             this.scene.enemyBulletManager.create(parmas);
         }
     }
-    aimedPlayerBullet() {
-        // 瞄准玩家的子弹
-        // console.log('瞄准');
-        let player = this.scene.player;
-        let ax = player.x - this.x;
-        let ay = player.y - this.y;
-        let angle = this.toAngle(Math.atan2(ay, ax));
-        let parmas = {
-            indexX: 4,
-            indexY: 2,
-            width: 16,
-            height: 16,
-            x: this.x,
-            y: this.y,
-            moveType: 2,
-            speed: 10,
-            angle,
-        };
-        this.scene.enemyBulletManager.create(parmas);
+    aimedPlayerBullet(bulletType, num) {
+
+        for (let i = 0; i < num; i++) {
+            let player = this.scene.player;
+            let ax = player.x - this.x;
+            let ay = player.y - this.y;
+            let angle = this.toAngle(Math.atan2(ay, ax));
+            let parmas = {
+                x: this.x,
+                y: this.y,
+                moveType: 2,
+                speed: 100,
+                angle,
+            };
+            parmas = Object.assign(parmas, bulletType);
+            this.scene.enemyBulletManager.create(parmas);
+        }
     }
-    shotLinearBullet() {
-        let parmas = {
-            indexX: 4,
-            indexY: 2,
-            width: 16,
-            height: 16,
-            x: this.x,
-            y: this.y,
-            moveType: 1,
-            speed: 10,
-            angle: 90
-        };
-        this.scene.enemyBulletManager.create(parmas);
+    shotLinearBullet(bulletType, num = 1) {
+        for (let i = 0; i < num; i++) {
+            let parmas = {
+                x: this.x,
+                y: this.y,
+                moveType: 1,
+                speed: 200 + i * 50,
+                angle: 90,
+            };
+            parmas = Object.assign(parmas, bulletType);
+            this.scene.enemyBulletManager.create(parmas);
+        }
     }
     linearMotion() {
         this.directionY = 1;

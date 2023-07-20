@@ -5,11 +5,16 @@ import Player from "../object/player";
 import PlayerBulletManager from "../manager/playerBullet";
 import EnemyManager from "../manager/enemy";
 import EnemyBulletManager from '../manager/enemyBullet';
+import Boss from '../object/boss';
 import { enemy_list } from '../data/enemy';
 class Level extends BaseScene {
     SHOT_STATE = 1; // 正在游戏
     PAUSE_STATE = 2; // 暂停游戏
     GAMEOVER_STATE = 3; // 游戏结束
+
+    BOSS_1 = 1;
+    BOSS_2 = 2;
+
     constructor(game) {
         super(game)
         this.score = 0;
@@ -22,6 +27,9 @@ class Level extends BaseScene {
         this.playerBulletManager = new PlayerBulletManager(this);
         this.enemyManager = new EnemyManager(this);
         this.enemyBulletManager = new EnemyBulletManager(this);
+        this.bossIndex = 0;
+        this.boss = new Boss(this.bossIndex, this);
+        this.isBossExist = false;
     }
     init() {
         this.state = this.SHOT_STATE;
@@ -55,7 +63,14 @@ class Level extends BaseScene {
                 };
             }
         };
-
+        if (!this.isBossExist && this.enemy_index >= this.enemy_list.length && this.enemyBulletManager.objects.size <=0) {
+            // console.log("boss初始化");
+            this.boss.init();
+            this.isBossExist = true;
+        };
+        if(this.isBossExist){
+            this.boss.update();
+        };
         this.playerBulletManager.checkCollisonWithEnemy();
     }
     draw() {
@@ -63,6 +78,9 @@ class Level extends BaseScene {
         this.playerBulletManager.draw();
         this.enemyManager.draw();
         this.enemyBulletManager.draw();
+        if(this.isBossExist){
+            this.boss.draw();
+        };
     }
 }
 export default Level;

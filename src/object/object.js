@@ -1,6 +1,7 @@
 import * as PIXI from 'pixi.js';
 import { getImageByName } from '../imageLoader';
 class BaseObject {
+    FPS = 1/60
     constructor(id, scene) {
         this.id = id;
         this.scene = scene;

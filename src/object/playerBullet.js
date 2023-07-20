@@ -9,19 +9,19 @@ class PlayerBullet extends BaseObject {
         this.x = this.scene.player.x;
         this.y = this.scene.player.y;
         this.image = 'bullet';
-        this.indexX = 2;
-        this.indexY = 3;
+        this.indexX = 3;
+        this.indexY = 7;
+
         this.spriteWidth = 16;
         this.spriteHeight = 16;
+
         BaseObject.prototype.init.apply(this, arguments);
     }
-    runWay() {
+    update() {
+        BaseObject.prototype.update.apply(this, arguments);
         this.y -= this.speed;
     }
-    update() {
-        this.runWay()
-    }
-    outOfStage(){
+    outOfStage() {
         if (this.y < 0) {
             return true;
         };
@@ -30,13 +30,6 @@ class PlayerBullet extends BaseObject {
     draw() {
         this.sprite.x = this.x;
         this.sprite.y = this.y;
-        BaseObject.prototype.draw.apply(this, arguments);
-    }
-    handleCollision(obj){
-        if(this.checkCollision(obj)){
-            this.remove();
-            obj.handleCollision();
-        };
     }
 }
 export default PlayerBullet;

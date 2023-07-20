@@ -6,7 +6,8 @@ class EnemyBullet extends BaseObject {
         this.speed = 10;
     }
     init(params) {
-        this.moveType = params.moveType||1;
+        this.params = params;
+        this.moveType = params.moveType || 1;
         this.x = params.x;
         this.y = params.y;
         this.image = 'bullet';
@@ -17,88 +18,88 @@ class EnemyBullet extends BaseObject {
         this.spriteHeight = params.height;
         this.speed = params.speed;
         this.aimed = false;
+        this.a = params.a || 1;
+        this.maxA = params.maxSpeed || 300;
+        this.leafTurnNum = 0;// 叶子型运动中需要转一次向
         BaseObject.prototype.init.apply(this, arguments);
     }
-    runWay() {
+    run() {
         switch (this.moveType) {
             case 1:
+                // 直线运动
                 this.linearMove();
                 break;
             case 2:
+                // 按照某个角度进行运动
                 this.scattering();
                 break;
             case 3:
-                // 环形转瞄准
-                this.ringToAimed()
+                // 环形
+                // this.scattering()
                 break;
             case 4:
-                // 
+                // 曲线弹
                 this.curve();
                 break;
+            case 5:
+                this.Leaf();
             default:
                 break;
         }
     }
     update() {
-        BaseObject.prototype.update.apply(this,arguments)
-        this.runWay()
+        BaseObject.prototype.update.apply(this, arguments)
+        this.run()
         this.sprite.x = this.x;
         this.sprite.y = this.y;
     }
-    curve(){
-        // 每十帧减去2度
-        //console.log(1);
-        //this.angle += 2;
-        if(this.speed <= 50){
+    curve() {
+        if (this.speed <= 50) {
             this.speed += 1;
         }
-        this.x += this.speed *(1/30) * Math.cos(this.toRadian(this.angle));
-        this.y += this.speed *(1/30) * Math.sin(this.toRadian(this.angle));
+        this.x += this.speed * (1 / 30) * Math.cos(this.toRadian(this.angle));
+        this.y += this.speed * (1 / 30) * Math.sin(this.toRadian(this.angle));
     }
-    removeOutOfStage(){
+    Leaf() {
+        if (this.frame_count >= 200 && this.leafTurnNum == 0) {
+            console.log('转向');
+            this.leafTurnNum++;
+            // this.angle -= 90;
+        };
+        this.x += this.speed * (1 / 60) * Math.cos(this.toRadian(this.angle));
+        this.y += this.speed * (1 / 60) * Math.sin(this.toRadian(this.angle));
+    }
+    removeOutOfStage() {
         if (this.y < 0) {
             this.remove();
         };
     }
-    linearMove(){
-        this.y += this.speed;
+    linearMove() {
+        this.y += this.speed * (1 / 60);
+        if (this.speed <= this.maxSpeed) {
+            this.speed += this.a;
+        };
     }
     // 散射
-    scattering(){
-        //console.log('发射散弹');
-        let speedStep = 1;
-        this.x += this.speed * Math.cos(this.toRadian(this.angle));
-        this.y += this.speed * Math.sin(this.toRadian(this.angle));
-        
-        if(this.frame_count%10 === 0){
-            this.speed -= speedStep;
-        };
-        if(this.speed == 0){
-            this.speed = 10;
-        };
-    }
-    // 瞄准玩家的子弹
-    aimedPlayerBullet(){
-        let player = this.scene.player;
-    }
-    ringToAimed(){ 
-        if(!this.aimed && this.frame_count>1*60){
-            this.inAimed();
-        };
-        this.scattering();
+    scattering() {
+        this.x += this.speed * this.FPS * Math.cos(this.toRadian(this.angle));
+        this.y += this.speed * this.FPS * Math.sin(this.toRadian(this.angle));
+        if (this.speed < this.maxSpeed) {
+            this.speed += this.a;
+        }
     }
     draw() {
         BaseObject.prototype.draw.apply(this, arguments);
     }
     // 瞄准状态
-    inAimed(){
+    inAimed() {
         let player = this.scene.player;
         let ax = player.x - this.x;
         let ay = player.y - this.y;
         this.aimed = true;
-        this.angle = this.toAngle(Math.atan2(ay, ax));  
+        this.angle = this.toAngle(Math.atan2(ay, ax));
     }
-    remove(){
+    remove() {
         let index = this.scene.bullets.findIndex((b) => {
             return b.id == this.id;
         });
@@ -106,8 +107,8 @@ class EnemyBullet extends BaseObject {
         this.scene.bullets.splice(index, 1);
         delete this;
     }
-    handleCollision(obj){
-        if(this.checkCollision(obj)){
+    handleCollision(obj) {
+        if (this.checkCollision(obj)) {
             this.remove();
             obj.handleCollision();
         };
