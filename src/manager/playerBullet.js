@@ -8,19 +8,39 @@ class PlayerBulletManager extends BaseManager {
         this.bulletIndex = 0;
     }
     create() {
-        let bullet = new PlayerBullet(this.bulletIndex,this.scene);
+        let bullet = new PlayerBullet(this.bulletIndex, this.scene);
         bullet.init();
-        this.objects.set(this.bulletIndex,bullet);
+        this.objects.set(this.bulletIndex, bullet);
         this.bulletIndex++;
     }
-    update(){
-        this.objects.forEach((bullet)=>{
+    update() {
+        this.objects.forEach((bullet) => {
+            if (bullet.outOfStage()) {
+                bullet.remove();
+                this.objects.delete(bullet.id);
+            };
             bullet.update();
         });
     }
-    draw(){
-        this.objects.forEach((bullet)=>{
+    draw() {
+        this.objects.forEach((bullet) => {
             bullet.draw();
+        });
+    }
+    checkCollisonWithEnemy() {
+        if (this.scene.enemyManager.getSize() <= 0)
+            return 0;
+        this.objects.forEach((bullet) => {
+            this.scene.enemyManager.objects.forEach((enemy) => {
+                if(bullet.checkCollision(enemy)){
+                    // 删除子弹
+                    bullet.remove();
+                    this.objects.delete(bullet.id);
+                    // 删除敌人
+                    enemy.remove();
+                    this.scene.enemyManager.objects.delete(enemy.id);
+                };
+            });
         });
     }
 }

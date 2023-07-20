@@ -41,7 +41,9 @@ class BaseObject {
             return true;
         };
     }
-    
+    remove(){
+        this.scene.game.stage.removeChild(this.sprite);
+    }
     checkCollision(obj) {
         let spriteLeft = this.x - this.spriteWidth / 2,
             spriteRight = this.x + this.spriteWidth / 2,
@@ -71,6 +73,12 @@ class BaseObject {
     }
     handleCollision(obj){
         
+    }
+    toRadian(angle) {
+        return angle / 180 * Math.PI;
+    }
+    toAngle(radian){
+        return (radian * 180 / Math.PI) | 0;
     }
 }
 export default BaseObject;

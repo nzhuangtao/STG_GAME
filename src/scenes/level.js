@@ -4,6 +4,7 @@ import BaseScene from "./base";
 import Player from "../object/player";
 import PlayerBulletManager from "../manager/playerBullet";
 import EnemyManager from "../manager/enemy";
+import EnemyBulletManager from '../manager/enemyBullet';
 import { enemy_list } from '../data/enemy';
 class Level extends BaseScene {
     SHOT_STATE = 1; // 正在游戏
@@ -20,6 +21,7 @@ class Level extends BaseScene {
         this.enemy_list = enemy_list;
         this.playerBulletManager = new PlayerBulletManager(this);
         this.enemyManager = new EnemyManager(this);
+        this.enemyBulletManager = new EnemyBulletManager(this);
     }
     init() {
         this.state = this.SHOT_STATE;
@@ -34,9 +36,12 @@ class Level extends BaseScene {
     }
     update() {
         BaseScene.prototype.update.apply(this, arguments);
+        // console.log("敌人数目"+this.enemyManager.objects.size);
+        // console.log("敌人子弹数目"+this.enemyBulletManager.objects.size);
         this.player.update();
         this.playerBulletManager.update();
         this.enemyManager.update();
+        this.enemyBulletManager.update();
         // 检查是否需要生成敌人
         if (this.enemy_index < this.enemy_list.length) {
             for (let i = 0; i < enemy_list.length; i++) {
@@ -51,11 +56,13 @@ class Level extends BaseScene {
             }
         };
 
+        this.playerBulletManager.checkCollisonWithEnemy();
     }
     draw() {
         this.player.draw();
         this.playerBulletManager.draw();
         this.enemyManager.draw();
+        this.enemyBulletManager.draw();
     }
 }
 export default Level;

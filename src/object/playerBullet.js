@@ -21,23 +21,16 @@ class PlayerBullet extends BaseObject {
     update() {
         this.runWay()
     }
-    removeOutOfStage(){
+    outOfStage(){
         if (this.y < 0) {
-            this.remove();
+            return true;
         };
+        return false;
     }
     draw() {
         this.sprite.x = this.x;
         this.sprite.y = this.y;
         BaseObject.prototype.draw.apply(this, arguments);
-    }
-    remove(){
-        let index = this.scene.bullets.findIndex((b) => {
-            return b.id == this.id;
-        });
-        this.scene.game.stage.removeChild(this.sprite);
-        this.scene.bullets.splice(index, 1);
-        delete this;
     }
     handleCollision(obj){
         if(this.checkCollision(obj)){

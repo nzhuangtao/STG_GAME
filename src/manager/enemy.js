@@ -5,7 +5,6 @@ class EnemyManager extends BaseManager{
     constructor(scene){
         super(scene)
         this.enemyIndex = 0;
-        this.objects = new Map();
     }
     create(params){
         let enemy = new Enemy(this.enemyIndex,this.scene);
@@ -18,7 +17,8 @@ class EnemyManager extends BaseManager{
             num:enemyType.num,
             x:params.x,
             y:params.y,
-            moveType:params.moveType,
+            moveType:params.moveType, // 运动方式
+            bullets:params.bullets,
         });
         this.objects.set(this.enemyIndex,enemy);
         this.enemyIndex++;
@@ -29,7 +29,7 @@ class EnemyManager extends BaseManager{
                 this.objects.delete(enemy.id);
             };
         });
-        console.log("数目："+this.objects.size);
+        // console.log("数目："+this.objects.size);
         this.objects.forEach((enemy)=>{
             enemy.update();
         });
@@ -38,6 +38,9 @@ class EnemyManager extends BaseManager{
         this.objects.forEach((enemy)=>{
             enemy.draw();
         });
+    }
+    getSize(){
+        return this.objects.size;
     }
 }
 export default EnemyManager;
