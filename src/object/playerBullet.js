@@ -1,46 +1,35 @@
 import BaseObject from "./object";
+
 class PlayerBullet extends BaseObject {
     constructor(id, scene) {
         super(id, scene);
-        this.speed = 200;
-        this.direction = -1;
+        this.speed = 10;
     }
-    init(params) {
+    init() {
+        this.x = this.scene.player.x;
+        this.y = this.scene.player.y;
         this.image = 'bullet';
-        this.x = params.x;
-        this.y = params.y;
-        this.indexX = params.indexX||0;
-        this.indexY = params.indexY||0;
-        this.spriteWidth = params.width;
-        this.spriteHeight = params.height;
+        this.indexX = 3;
+        this.indexY = 7;
+
+        this.spriteWidth = 16;
+        this.spriteHeight = 16;
+
         BaseObject.prototype.init.apply(this, arguments);
     }
     update() {
-        this.y += (this.speed * this.direction)*(1/30);
-        this.sprite.x = this.x;
-        this.sprite.y = this.y;
+        BaseObject.prototype.update.apply(this, arguments);
+        this.y -= this.speed;
     }
-    removeOutOfStage(){
+    outOfStage() {
         if (this.y < 0) {
-            this.remove();
+            return true;
         };
+        return false;
     }
     draw() {
-        // BaseObject.prototype.draw.apply(this, arguments);
-    }
-    remove(){
-        let index = this.scene.bullets.findIndex((b) => {
-            return b.id == this.id;
-        });
-        this.scene.game.stage.removeChild(this.sprite);
-        this.scene.bullets.splice(index, 1);
-        delete this;
-    }
-    handleCollision(obj){
-        if(this.checkCollision(obj)){
-            this.remove();
-            obj.handleCollision();
-        };
+        this.sprite.x = this.x;
+        this.sprite.y = this.y;
     }
 }
 export default PlayerBullet;

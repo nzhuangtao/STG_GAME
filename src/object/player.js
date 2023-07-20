@@ -1,4 +1,7 @@
+<<<<<<< HEAD
 import Bullet from "./playerBullet";
+=======
+>>>>>>> c2847702040ae4b45be300fe827d393e09e165db
 import BaseObject from "./object";
 import * as PIXI from 'pixi.js';
 import bullet_type from "../data/bullet";
@@ -12,8 +15,11 @@ class Player extends BaseObject {
         this.spriteHeight = 48;
         this.image = 'player';
         this.speed = 200;
+<<<<<<< HEAD
         this.bulletIndex = 0;
         this.bulletType = bullet_type[4];
+=======
+>>>>>>> c2847702040ae4b45be300fe827d393e09e165db
     }
     init() {
         this.x = 640 / 2 - this.spriteWidth / 2;
@@ -65,26 +71,10 @@ class Player extends BaseObject {
             this.y = 480 - this.spriteHeight;
 
         }
-        this.sprite.x = this.x;
-        this.sprite.y = this.y;
     }
     shot() {
-  
         if(this.frame_count%5!=0) return 0;
-        let bullet = new Bullet(this.bulletIndex,this.scene);
-        // 传参数确定子弹位置与样式
-        let params = {
-            x:this.x,
-            y:this.y,
-            width:this.bulletType.width,
-            height:this.bulletType.height,
-            indexX:this.bulletType.indexX,
-            indexY:this.bulletType.indexY
-        };
-        
-        bullet.init(params);
-        this.bulletIndex++;
-        this.scene.player_bullets[this.bulletIndex] = bullet;
+        this.scene.playerBulletManager.create();
     }
     draw() {
         if (this.frame_count % 5 == 0) {
@@ -93,6 +83,8 @@ class Player extends BaseObject {
                 this.indexX = 0;
             };
         };
+        this.sprite.x = this.x;
+        this.sprite.y = this.y;
         BaseObject.prototype.draw.apply(this, arguments);
     }
 }
