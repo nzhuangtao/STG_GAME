@@ -8,7 +8,7 @@ class EnemyBullet extends BaseObject {
     }
     init(params) {
         this.params = params;
-       
+
         this.moveType = params.moveType || 1;
         this.x = params.x;
         this.y = params.y;
@@ -76,10 +76,14 @@ class EnemyBullet extends BaseObject {
         this.removeOutOfStage();
     }
     remove() {
-        console.log("删除");
         this.scene.playerLayer.removeChild(this.sprite);
         this.scene.enemyBulletManager.objects.delete(this.id);
         delete this;
+    }
+    removeOutOfStage() {
+        if (this.outOfStage()) {
+            this.remove();
+        };
     }
     curve() {
         if (this.speed <= 50) {
@@ -91,8 +95,8 @@ class EnemyBullet extends BaseObject {
     starSpin() {
         if (this.frame_count % 2 == 0) {
             this.angle -= 2;
-            this.x = this.scene.boss.x + Math.cos(this.toRadian(this.angle))*100;
-            this.y = this.scene.boss.y + Math.sin(this.toRadian(this.angle))*100;
+            this.x = this.scene.boss.x + Math.cos(this.toRadian(this.angle)) * 100;
+            this.y = this.scene.boss.y + Math.sin(this.toRadian(this.angle)) * 100;
         };
         if (this.frame_count % 10 == 0) {
             let params1 = {
@@ -132,7 +136,7 @@ class EnemyBullet extends BaseObject {
                 moveType: 10,
             }
             this.scene.enemyBulletManager.create(params3);
-           
+
             let params4 = {
                 x: this.x,
                 y: this.y,
@@ -143,16 +147,20 @@ class EnemyBullet extends BaseObject {
                 width: 16,
                 height: 16,
                 moveType: 10,
-                index:this.params.index,
+                index: this.params.index,
             }
             this.scene.enemyBulletManager.create(params4);
         }
+        if(this.frame_count > 500){
+            this.scene.boss.notifyShot(1);
+            this.remove();
+        };
     }
     star() {
         if (this.frame_count % 5 == 0) {
-            
-            if(this.params.index){
-                if(this.params.index % 2 == 0) {
+
+            if (this.params.index) {
+                if (this.params.index % 2 == 0) {
                     this.angle -= 3;
                 } else {
                     this.angle += 3;
@@ -181,11 +189,6 @@ class EnemyBullet extends BaseObject {
         };
         this.x += this.speed * (1 / 60) * Math.cos(this.toRadian(this.angle));
         this.y += this.speed * (1 / 60) * Math.sin(this.toRadian(this.angle));
-    }
-    removeOutOfStage() {
-        if (this.outOfStage()) {
-            this.remove();
-        };
     }
     linearMove() {
         this.y += this.speed * (1 / 60);

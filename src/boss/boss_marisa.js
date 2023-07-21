@@ -40,7 +40,7 @@ class Marisa extends Boss {
                 y: this.y + Math.sin(this.toRadian(i * 72))*100,
                 angle: i * 72,
                 speed: 100,
-                indexX: 2 + i,
+                indexX: 2+i*2,
                 indexY: 10,
                 width: 16,
                 height: 16,
@@ -49,6 +49,10 @@ class Marisa extends Boss {
             }
             this.scene.enemyBulletManager.create(params);
         }
+    }
+    notifyShot(type){
+        this.mode = 0;
+        this.frame_count = 0;
     }
 }
 export default Marisa;
