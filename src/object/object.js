@@ -1,7 +1,7 @@
 import * as PIXI from 'pixi.js';
 import { getImageByName } from '../imageLoader';
 class BaseObject {
-    FPS = 1/60
+    FPS = 1 / 60;
     constructor(id, scene) {
         this.id = id;
         this.scene = scene;
@@ -16,6 +16,8 @@ class BaseObject {
         this.spriteWidth = 0;
         this.spriteHeight = 0;
         this.sprite = null;
+        this.angle = 0;
+        this.speed = 0;
     }
     init() {
         let texture = getImageByName(this.image);
@@ -23,11 +25,11 @@ class BaseObject {
         let rectangle = new PIXI.Rectangle(this.indexX * this.spriteWidth, this.indexY * this.spriteHeight, this.spriteWidth, this.spriteHeight);
         this.texture.frame = rectangle;
         this.sprite = new PIXI.Sprite(this.texture);
-        this.sprite.anchor.set(0.5);
+        
         this.sprite.x = this.x;
         this.sprite.y = this.y;
-       
-        this.scene.stage.addChild(this.sprite);
+        this.sprite.anchor.set(0.5);
+        this.scene.playerLayer.addChild(this.sprite);
     }
     update() {
         this.frame_count++;
@@ -38,13 +40,13 @@ class BaseObject {
         this.texture.frame = rectangle;
         this.sprite.sprite = this.texture;
     }
-    outOfStage(){
-        if(this.y > 580 || this.x < -100 || this.x > 740 || this.y < -100){
+    outOfStage() {
+        if (this.y > 580 || this.x < -100 || this.x > 740 || this.y < -100) {
             return true;
         };
     }
-    remove(){
-        this.scene.game.stage.removeChild(this.sprite);
+    remove() {
+        this.scene.playerLayer.removeChild(this.sprite);
     }
     checkCollision(obj) {
         let spriteLeft = this.x - this.spriteWidth / 2,
@@ -56,30 +58,30 @@ class BaseObject {
             objRight = obj.x + obj.spriteWidth / 2,
             objTop = obj.y - this.spriteHeight / 2,
             objBottom = obj.y + this.spriteHeight / 2;
-        if (this.x>objLeft && this.x<objRight && this.y<objBottom && this.y>objTop){
+        if (this.x > objLeft && this.x < objRight && this.y < objBottom && this.y > objTop) {
             return true;
         };
-        if (spriteLeft>objLeft && spriteLeft<objRight && spriteTop<objBottom && spriteTop>objTop){
+        if (spriteLeft > objLeft && spriteLeft < objRight && spriteTop < objBottom && spriteTop > objTop) {
             return true;
         };
-        if (spriteLeft>objLeft && spriteLeft<objRight && spriteBottom<objBottom && spriteBottom>objTop){
+        if (spriteLeft > objLeft && spriteLeft < objRight && spriteBottom < objBottom && spriteBottom > objTop) {
             return true;
         };
-        if (spriteRight>objLeft && spriteRight<objRight && spriteTop<objBottom && spriteTop>objTop){
+        if (spriteRight > objLeft && spriteRight < objRight && spriteTop < objBottom && spriteTop > objTop) {
             return true;
         };
-        if (spriteRight>objLeft && spriteRight<objRight && spriteBottom<objBottom && spriteBottom>objTop){
+        if (spriteRight > objLeft && spriteRight < objRight && spriteBottom < objBottom && spriteBottom > objTop) {
             return true;
         };
-            return false;
+        return false;
     }
-    handleCollision(obj){
-        
+    handleCollision(obj) {
+
     }
     toRadian(angle) {
         return angle / 180 * Math.PI;
     }
-    toAngle(radian){
+    toAngle(radian) {
         return (radian * 180 / Math.PI) | 0;
     }
 }

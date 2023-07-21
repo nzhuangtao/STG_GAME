@@ -1,63 +1,188 @@
 import BaseObject from "./object";
-import EnemyBullet from "./enemyBullet";
 import bullet_type from "../data/bullet";
+import * as PIXI from 'pixi.js'
+import { getImageByName } from "../imageLoader";
 class Boss extends BaseObject {
     STATE_START = 1;
-    STATE_ATTACK = 2;
+    STATE_TALK = 2;
+    STATE_ATIVE = 3;
     constructor(id, scene) {
         super(id, scene);
         this.state = this.STATE_START;
-        this.hp = 100;
-        this.bulletIndex = 0;
-        this.bulletType = bullet_type[2];
+        this.hp = 200;
+        this.maxHp = 200;
+        this.startTalk = [];
+        this.endTalk = [];
+        this.talkIndex = 0;
+        this.lastTalkIndex = 0;
+        this.talkAppear = false;
+        this.isDie = false;
+        this.talkPreview = null;
+        this.talkName = null;
+        this.talkMessage = null;
+        this.talkBar = null;
     }
     init() {
-        this.image = 'mokou';
-        this.indexX = 0;
-        this.indexY = 0;
-        this.spriteWidth = 128;
-        this.spriteHeight = 128;
-        this.x = 640 / 2;
-        this.y = 0;
-        this.speed = 100;
-        this.leafNum = 1;
-        this.spawner = 1;
-        this.orb = 1;
+        this.talkList = this.startTalk;
         BaseObject.prototype.init.apply(this, arguments);
     }
     update() {
         BaseObject.prototype.update.apply(this, arguments);
+
         if (this.state == this.STATE_START) {
             // 入场动画
-            this.y += this.speed * (1 / 60);
+            this.y += this.speed * this.scene.FPS;
+
             if (this.y >= this.spriteHeight) {
                 this.y = this.spriteHeight;
-                this.state = this.STATE_ATTACK;
+                this.state = this.STATE_READY;
             };
         };
-        if (this.frame_count % 10 == 0 && this.state == this.STATE_ATTACK) {
-            // this.shotLeftLeaf();
-            this.shotSpirals();
-        }
-        // if (this.frame_count >= 200 && this.leafNum <= 2) {
-        //     this.shotRightLeaf();
-        //     this.leafNum++;
-        // }
-        // if (this.leafNum >= 2 && this.orb <= 8) {
-        //     if (this.frame_count % 50 == 0 && this.frame_count >= 300) {
-        //         this.tripleorbs();
-        //         this.orb++;
+        
+        // 检查是否有对话
+        // if (this.state == this.STATE_TALK) {
+
+        //     if (this.talkIndex < this.talkList.length) {
+
+        //         this.displayTalk();
+        //     } else {
+        //         this.hideTalk();
+        //         this.state = this.STATE_READY;
         //     }
         // }
-        // if (this.orb > 8) {
-        //     this.leafNum = 0;
-        //     this.orb = 0;
+        if (this.state == this.STATE_READY) {
+            this.spellCharge();
+            this.state = null;
+        }
+
+
+        // if (this.state == this.STATE_ATIVE && this.attack_mode == 1) {
+        //     this.shotLeftLeaf();
+        //     this.attack_mode = 2;
         //     this.frame_count = 0;
         // };
+        // if (this.frame_count > 100 && this.attack_mode == 2) {
+        //     this.shotRightLeaf();
+        //     this.frame_count = 0;
+        //     this.attack_mode = 3;
+        // };
+        // if (
+        //     this.frame_count > 100 &&
+        //     this.frame_count < 1000 &&
+        //     this.frame_count % 50 == 0 &&
+        //     this.attack_mode == 3) {
+        //     this.tripleorbs();
+        // }
+        // if(this.frame_count>1000 && this.attack_mode == 3){
+        //     this.frame_count = 0;
+        //     this.showSpellCard();
+        //     this.attack_mode = 4;
+        // };
+        // // 开符卡1
+        // if(this.attack_level == 2){
+        //     if(this.frame_count % 100 == 0 && this.circlenum<10){
+        //         this.shotCircle();
+        //         this.circlenum++
+        //     } else {
+        //         this.attack_level ++;
+        //         this.showSpellCard();
+        //     }
+        // };
+        // if(this.attack_mode == 5){
+        //     if(this.frame_count % 100 == 0 && this.circlenum<20){
+        //         this.shotSpawner();
+        //         this.circlenum++
+        //     };
+        // }
     }
-    shot() {
+    showSpellCard() {
+        let effect = this.scene.effectManager.create();
+        let params = {
+            x: 640 / 2,
+            y: 480,
+            image: "mokou_stand",
+            effectType: 2,
+        };
+
+        effect.init(params);
+        effect.spellCard();
+    }
+    spellCharge() {
+        for (let i = 0; i < 60; i++) {
+            let angle = i * 6;
+            let params = {
+                x: this.x + Math.cos(angle / 180 * Math.PI) * 200,
+                y: this.y + Math.sin(angle / 180 * Math.PI) * 200,
+                angle: angle,
+                speed: 200 + Math.random() * 10,
+                effectType: 1,
+            }
+            let effect = this.scene.effectManager.create();
+            effect.init(params);
+            effect.initSpellCharge();
+        };
+    }
+    hideTalk() {
+        let stage = this.scene.game.stage;
+        stage.removeChild(this.talkPreview);
+        stage.removeChild(this.talkBar);
+        stage.removeChild(this.talkMessage);
+        stage.removeChild(this.talkName);
+        this.talkAppear = false;
+        this.talkIndex = 0;
+        this.lastTalkIndex = 0;
+    }
+    displayTalk() {
+        let talk = this.talkList[this.talkIndex];
+        if (!this.talkAppear) {
+            // 初始化对话，将所有对话需要用到的精灵添加到场景
+            // 让人物暂时不更新
+            this.scene.player.state = 1;
+            // 画人物
+            let texture = getImageByName(talk.image);
+            this.talkPreview = new PIXI.Sprite(texture);
+
+            this.talkPreview.x = this.scene.width - this.talkPreview.width;
+            this.talkPreview.y = 50;
+            this.scene.stage.addChild(this.talkPreview);
+            // 画对话框
+            this.talkBar = new PIXI.Graphics();
+            this.talkBar.beginFill(0xffffff, 0.8);
+            this.talkBar.drawRect(0, this.scene.height - 240, this.scene.width, 240);
+            this.talkBar.endFill();
+            this.scene.stage.addChild(this.talkBar);
+            // 画人物名字
+            this.talkName = new PIXI.Text(talk.name);
+            this.talkName.x = 0;
+            this.talkName.y = this.scene.height - 240;
+            this.scene.stage.addChild(this.talkName);
+            // 画对话
+            this.talkMessage = new PIXI.Text(talk.message);
+            this.talkMessage.x = 0;
+            this.talkMessage.y = this.scene.height - 240 + 40;
+            this.scene.stage.addChild(this.talkMessage);
+            this.talkAppear = true;
+        };
+        if (this.talkAppear && this.talkIndex > 0) {
+            if (this.lastTalkIndex == this.talkIndex)
+                return 0;
+            let texture = getImageByName(talk.image);
+            this.talkPreview.texture = texture;
+            this.talkName.text = talk.name;
+            this.talkMessage.text = talk.message;
+            this.lastTalkIndex = this.talkIndex;
+        };
+    }
+    notifyTalk() {
+        this.talkIndex += 1;
+    }
+    notifyActive() {
+        this.state = this.STATE_ATIVE;
+    }
+    notifySpellCard() {
 
     }
+
     shotLeftLeaf() {
         for (let i = 0; i < 5; i++) {
             for (var j = 0; j < 12; j++) {
@@ -219,7 +344,7 @@ class Boss extends BaseObject {
                 indexY: 4,
                 width: 16,
                 height: 16,
-               
+
             };
             this.scene.enemyBulletManager.create(params1);
             // let params2 = {

@@ -9,19 +9,7 @@ class EnemyBulletManager extends BaseManager {
     }
     create(params) {
         let bullet = new EnemyBullet(this.bulletIndex, this.scene);
-        bullet.init({
-            turn_angle:params.turn_angle||0,
-            indexX:params.indexX,
-            indexY:params.indexY,
-            width:params.width,
-            height:params.height,
-            x:params.x,
-            y:params.y,
-            moveType:params.moveType,
-            speed:params.speed,
-            angle:params.angle,
-            image:params.image||'bullet',
-        });
+        bullet.init(params);
         this.objects.set(this.bulletIndex, bullet);
         this.bulletIndex++;
     }

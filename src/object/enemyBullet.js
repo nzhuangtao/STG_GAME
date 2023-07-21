@@ -8,10 +8,11 @@ class EnemyBullet extends BaseObject {
     }
     init(params) {
         this.params = params;
+       
         this.moveType = params.moveType || 1;
         this.x = params.x;
         this.y = params.y;
-        this.turn_angle = params.turn_angle||0;
+        this.turn_angle = params.turn_angle || 0;
         this.angle = params.angle;
         this.indexX = params.indexX;
         this.indexY = params.indexY;
@@ -49,19 +50,30 @@ class EnemyBullet extends BaseObject {
             case 5:
                 // boss1 的 leaf
                 this.leaf();
+                break;
             case 6:
                 this.shotLeafTwoDelay();
+                break;
             case 7:
                 this.shotSpawner();
+                break;
             case 8:
                 this.shotThreeStage();
+                break;
+            case 9:
+                this.starSpin();
+                break;
+            case 10:
+                this.star();
+                break;
             default:
                 break;
         }
     }
     update() {
         BaseObject.prototype.update.apply(this, arguments)
-        this.run()
+        this.run();
+        this.removeOutOfStage();
     }
     curve() {
         if (this.speed <= 50) {
@@ -69,6 +81,82 @@ class EnemyBullet extends BaseObject {
         }
         this.x += this.speed * (1 / 30) * Math.cos(this.toRadian(this.angle));
         this.y += this.speed * (1 / 30) * Math.sin(this.toRadian(this.angle));
+    }
+    starSpin() {
+        if (this.frame_count < 60) {
+            this.angle += 4;
+        };
+        if (this.frame_count % 10 == 0) {
+            let params1 = {
+                x: this.x,
+                y: this.y,
+                angle: this.angle + 90,
+                speed: 200,
+                indexX: this.indexX,
+                indexY: this.indexY,
+                width: 16,
+                height: 16,
+                moveType: 10,
+            };
+
+            this.scene.enemyBulletManager.create(params1);
+            let params2 = {
+                x: this.x,
+                y: this.y,
+                angle: this.angle,
+                speed: 200,
+                indexX: this.indexX,
+                indexY: this.indexY,
+                width: 16,
+                height: 16,
+                moveType: 10,
+            }
+            this.scene.enemyBulletManager.create(params2);
+            let params3 = {
+                x: this.x,
+                y: this.y,
+                angle: this.angle,
+                speed: 250,
+                indexX: this.indexX,
+                indexY: this.indexY,
+                width: 16,
+                height: 16,
+                moveType: 10,
+            }
+            this.scene.enemyBulletManager.create(params3);
+           
+            let params4 = {
+                x: this.x,
+                y: this.y,
+                angle: this.angle,
+                speed: 250,
+                indexX: this.indexX,
+                indexY: this.indexY,
+                width: 16,
+                height: 16,
+                moveType: 10,
+                index:this.params.index,
+            }
+            this.scene.enemyBulletManager.create(params4);
+        }
+        this.x += this.speed * this.scene.FPS * Math.cos(this.toRadian(this.angle));
+        this.y += this.speed * this.scene.FPS * Math.sin(this.toRadian(this.angle));
+    }
+    star() {
+        if (this.frame_count % 5 == 0) {
+            
+            if(this.params.index){
+                if(this.params.index % 2 == 0) {
+                    this.angle -= 3;
+                } else {
+                    this.angle += 3;
+                }
+            } else {
+                this.angle += 2;
+            }
+        };
+        this.x += this.speed * this.scene.FPS * Math.cos(this.toRadian(this.angle));
+        this.y += this.speed * this.scene.FPS * Math.sin(this.toRadian(this.angle));
     }
     leaf() {
         if (this.frame_count < 10) {
@@ -89,7 +177,7 @@ class EnemyBullet extends BaseObject {
         this.y += this.speed * (1 / 60) * Math.sin(this.toRadian(this.angle));
     }
     removeOutOfStage() {
-        if (this.y < 0) {
+        if (this.y < 0 || this.y >= this.scene.height) {
             this.remove();
         };
     }
@@ -122,7 +210,8 @@ class EnemyBullet extends BaseObject {
         this.angle = this.toAngle(Math.atan2(ay, ax));
     }
     remove() {
-        this.scene.game.stage.removeChild(this.sprite);
+        console.log("删除");
+        this.scene.playerLayer.removeChild(this.sprite);
         this.scene.enemyBulletManager.objects.delete(this.id);
         delete this;
     }
@@ -147,7 +236,7 @@ class EnemyBullet extends BaseObject {
             // console.log(this.turn_angle)
             this.angle += this.turn_angle;
             this.leafDelayState = 2;
-        } else if(this.leafDelayState == 2){
+        } else if (this.leafDelayState == 2) {
             if (this.speed >= 10) {
                 this.speed -= 0.5;
             } else {
@@ -155,7 +244,7 @@ class EnemyBullet extends BaseObject {
                 this.speed = 0;
                 this.frame_count = 0;
             }
-        } else if(this.leafDelayState == 3 && this.frame_count>=100){
+        } else if (this.leafDelayState == 3 && this.frame_count >= 100) {
             this.speed = 150;
             this.angle += this.turn_angle;
             this.leafDelayState = 4;
@@ -163,59 +252,59 @@ class EnemyBullet extends BaseObject {
         this.x += this.speed * this.FPS * Math.cos(this.toRadian(this.angle));
         this.y += this.speed * this.FPS * Math.sin(this.toRadian(this.angle));
     }
-    shotSpawner(){
-        if(this.frame_count>100&&this.frame_count<180){
+    shotSpawner() {
+        if (this.frame_count > 100 && this.frame_count < 180) {
             this.speed = 0;
             this.scene.enemyBulletManager.create({
                 x: this.x,
                 y: this.y,
                 moveType: 2,
                 speed: 100,
-                angle: Math.random()*360,
+                angle: Math.random() * 360,
                 indexX: 3,
                 indexY: 3,
                 width: 16,
                 height: 16,
             });
         };
-        if(this.frame_count >180){
+        if (this.frame_count > 180) {
             this.remove();
         }
         this.x += this.speed * this.FPS * Math.cos(this.toRadian(this.angle));
         this.y += this.speed * this.FPS * Math.sin(this.toRadian(this.angle));
     }
-    shotThreeStage(){
-        if(this.threeStageState == 0){
-            if(this.speed > 10){
-                this.speed --;
+    shotThreeStage() {
+        if (this.threeStageState == 0) {
+            if (this.speed > 10) {
+                this.speed--;
             } else {
                 this.threeStageState = 1;
                 this.frame_count = 0;
                 this.speed = 0;
             }
-        } else if(this.threeStageState == 1 && this.frame_count > 30){
+        } else if (this.threeStageState == 1 && this.frame_count > 30) {
             this.speed = 100;
             this.angle += 90;
             this.threeStageState = 2;
             this.frame_count = 0;
             this.sprite.scale.set(1.5, 1.5);
-        } else if(this.threeStageState == 2){
-            if(this.speed > 10){
-                this.speed --;
+        } else if (this.threeStageState == 2) {
+            if (this.speed > 10) {
+                this.speed--;
             } else {
                 this.threeStageState = 3;
                 this.frame_count = 0;
                 this.sprite.scale.set(1, 1);
                 this.speed = 0;
             }
-        } else if(this.threeStageState == 3 && this.frame_count>30){
-            for(let i=0;i<2;i++){
+        } else if (this.threeStageState == 3 && this.frame_count > 30) {
+            for (let i = 0; i < 2; i++) {
                 this.scene.enemyBulletManager.create({
                     x: this.x,
                     y: this.y,
                     moveType: 2,
-                    speed: 90+i*10,
-                    angle: this.angle+90,
+                    speed: 90 + i * 10,
+                    angle: this.angle + 90,
                     indexX: 4,
                     indexY: 3,
                     width: 16,

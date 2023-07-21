@@ -2,6 +2,7 @@ import BaseObject from "./object";
 import * as PIXI from 'pixi.js';
 import bullet_type from "../data/bullet";
 class Player extends BaseObject {
+    TALK_STATE = 1;
     constructor(id, scene) {
         super(id, scene);
         this.hp = 5;
@@ -10,17 +11,24 @@ class Player extends BaseObject {
         this.spriteWidth = 32;
         this.spriteHeight = 48;
         this.image = 'player';
-        this.speed = 200;
+        this.speed = 150;
+        this.state = 0;
     }
     init() {
-        this.x = 640 / 2 - this.spriteWidth / 2;
-        this.y = 480 - 100;
+        this.x = this.scene.width / 2;
+        this.y = this.scene.height - this.spriteHeight;
         BaseObject.prototype.init.apply(this, arguments);
     }
     update() {
         BaseObject.prototype.update.apply(this, arguments);
         if (this.game.input.iskeyDown(this.game.input.BUTTON_Z)) {
-            this.shot();
+            if (this.state == this.TALK_STATE) {
+                if (this.frame_count % 8 === 0) {
+                    this.scene.boss.notifyTalk();
+                };
+            } else {
+                this.shot();
+            };
         };
         if (this.game.input.iskeyDown(this.game.input.BUTTON_LEFT)) {
             this.x -= this.speed * (1 / 60);
@@ -48,22 +56,22 @@ class Player extends BaseObject {
             this.indexY = 0;
         };
 
-        if (this.x < 0) {
-            this.x = 0;
-        }
-        if (this.x > 640 - this.spriteWidth) {
-            this.x = 640 - this.spriteWidth;
-        }
-        if (this.y < 0) {
-            this.y = 0;
+        // if (this.x < 0) {
+        //     this.x = 0;
+        // }
+        // if (this.x > 640 - this.spriteWidth) {
+        //     this.x = 640 - this.spriteWidth;
+        // }
+        // if (this.y < 0) {
+        //     this.y = 0;
 
-        }
-        if (this.y > 480 - this.spriteHeight) {
-            this.y = 480 - this.spriteHeight;
-        }
+        // }
+        // if (this.y > 480 - this.spriteHeight) {
+        //     this.y = 480 - this.spriteHeight;
+        // }
     }
     shot() {
-        if(this.frame_count%5!=0) return 0;
+        if (this.frame_count % 5 != 0) return 0;
         this.scene.playerBulletManager.create();
     }
     draw() {

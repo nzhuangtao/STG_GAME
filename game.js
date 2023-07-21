@@ -4,16 +4,18 @@ class Game{
     LOAD_SCENE = 1;
     OPENING_SCENE = 2;
     SELECT_SCENE = 3;
-    GAME_SCENE =4;
-    constructor(stage){
+    GAME_SCENE = 4;
+    constructor(stage,width,height){
         this.stage = stage;
+        this.width = width;
+        this.height = height;
         this.scenes = {};
         this.input = new Input();
     }
     init(){
         this.input.bindKey();
-        this.addScene(this.GAME_SCENE,new Level(this));
-        this.changeScene(this.GAME_SCENE)
+        this.addScene(this.GAME_SCENE,new Level(this,this.width,this.height));
+        this.changeScene(this.GAME_SCENE);
     }
     addScene(sceneName,scene){
         this.scenes[sceneName] = scene;
