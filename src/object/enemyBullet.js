@@ -75,6 +75,12 @@ class EnemyBullet extends BaseObject {
         this.run();
         this.removeOutOfStage();
     }
+    remove() {
+        console.log("删除");
+        this.scene.playerLayer.removeChild(this.sprite);
+        this.scene.enemyBulletManager.objects.delete(this.id);
+        delete this;
+    }
     curve() {
         if (this.speed <= 50) {
             this.speed += 1;
@@ -177,7 +183,7 @@ class EnemyBullet extends BaseObject {
         this.y += this.speed * (1 / 60) * Math.sin(this.toRadian(this.angle));
     }
     removeOutOfStage() {
-        if (this.y < 0 || this.y >= this.scene.height) {
+        if (this.outOfStage()) {
             this.remove();
         };
     }
@@ -208,12 +214,6 @@ class EnemyBullet extends BaseObject {
         let ay = player.y - this.y;
         this.aimed = true;
         this.angle = this.toAngle(Math.atan2(ay, ax));
-    }
-    remove() {
-        console.log("删除");
-        this.scene.playerLayer.removeChild(this.sprite);
-        this.scene.enemyBulletManager.objects.delete(this.id);
-        delete this;
     }
     handleCollision(obj) {
         if (this.checkCollision(obj)) {

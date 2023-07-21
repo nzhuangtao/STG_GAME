@@ -2,6 +2,7 @@ import * as PIXI from 'pixi.js';
 import { getImageByName } from '../imageLoader';
 class BaseObject {
     FPS = 1 / 60;
+    side = 200;
     constructor(id, scene) {
         this.id = id;
         this.scene = scene;
@@ -25,7 +26,7 @@ class BaseObject {
         let rectangle = new PIXI.Rectangle(this.indexX * this.spriteWidth, this.indexY * this.spriteHeight, this.spriteWidth, this.spriteHeight);
         this.texture.frame = rectangle;
         this.sprite = new PIXI.Sprite(this.texture);
-        
+
         this.sprite.x = this.x;
         this.sprite.y = this.y;
         this.sprite.anchor.set(0.5);
@@ -41,12 +42,21 @@ class BaseObject {
         this.sprite.sprite = this.texture;
     }
     outOfStage() {
-        if (this.y > 580 || this.x < -100 || this.x > 740 || this.y < -100) {
+        let left = 0 - this.side;
+        let right = this.scene.width + this.side;
+        let top = 0 - this.side;
+        let bottom = this.scene.height + this.side;
+        if (this.y > bottom || 
+            this.y < top || 
+            this.x > right || 
+            this.x < left) {
             return true;
+        } else {
+            return false;
         };
     }
     remove() {
-        this.scene.playerLayer.removeChild(this.sprite);
+        console.error("请重写此函数");
     }
     checkCollision(obj) {
         let spriteLeft = this.x - this.spriteWidth / 2,
@@ -74,9 +84,6 @@ class BaseObject {
             return true;
         };
         return false;
-    }
-    handleCollision(obj) {
-
     }
     toRadian(angle) {
         return angle / 180 * Math.PI;

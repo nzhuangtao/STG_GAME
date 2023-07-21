@@ -84,7 +84,9 @@ class Level extends BaseScene {
         //         };
         //     }
         // };
-        if (!this.isBossExist && this.enemyBulletManager.objects.size <= 0) {
+        if (
+            !this.isBossExist && 
+            this.enemyBulletManager.objects.size <= 0) {
 
             this.boss.init();
             this.isBossExist = true;
@@ -92,6 +94,7 @@ class Level extends BaseScene {
         if (this.isBossExist) {
             this.boss.update();
         };
+        
         // this.playerBulletManager.checkCollisonWithEnemy();
     }
     draw() {

@@ -8,21 +8,13 @@ document.body.appendChild(app.view);
 imageLoader();
 
 PIXI.Assets.loadBundle('images')
-    .then((assets) => {
-        // let texture = getImageByName("mokou_stand");
-        // let preview = new PIXI.Sprite(texture);
-        // preview.x = 0;
-        // stage.addChild(preview);
-        // setTimeout(()=>{
-        //     let _texture = getImageByName("reimu_stand");
-        //     preview.texture = _texture;
-        // },1000)
+    .then(() => {
         startGame();
     })
 function startGame() {
-    let game = new Game(stage,app.screen.width,app.screen.height);
+    let game = new Game(stage, app.screen.width, app.screen.height);
     game.init();
-    app.ticker.add((delta)=>{
+    app.ticker.add((delta) => {
         game.update();
     });
 }
