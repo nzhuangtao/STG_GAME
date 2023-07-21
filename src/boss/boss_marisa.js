@@ -36,8 +36,8 @@ class Marisa extends Boss {
     starSpin() {
         for (let i = 0; i < 5; i++) {
             let params = {
-                x: this.x + Math.cos(this.toRadian(i * 72)),
-                y: this.y + Math.sin(this.toRadian(i * 72)),
+                x: this.x + Math.cos(this.toRadian(i * 72))*100,
+                y: this.y + Math.sin(this.toRadian(i * 72))*100,
                 angle: i * 72,
                 speed: 100,
                 indexX: 2 + i,

@@ -83,8 +83,10 @@ class EnemyBullet extends BaseObject {
         this.y += this.speed * (1 / 30) * Math.sin(this.toRadian(this.angle));
     }
     starSpin() {
-        if (this.frame_count < 60) {
-            this.angle += 4;
+        if (this.frame_count % 2 == 0) {
+            this.angle -= 2;
+            this.x = this.scene.boss.x + Math.cos(this.toRadian(this.angle))*100;
+            this.y = this.scene.boss.y + Math.sin(this.toRadian(this.angle))*100;
         };
         if (this.frame_count % 10 == 0) {
             let params1 = {
@@ -139,8 +141,6 @@ class EnemyBullet extends BaseObject {
             }
             this.scene.enemyBulletManager.create(params4);
         }
-        this.x += this.speed * this.scene.FPS * Math.cos(this.toRadian(this.angle));
-        this.y += this.speed * this.scene.FPS * Math.sin(this.toRadian(this.angle));
     }
     star() {
         if (this.frame_count % 5 == 0) {
