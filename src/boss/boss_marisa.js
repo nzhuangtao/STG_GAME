@@ -5,7 +5,10 @@ class Marisa extends Boss {
         super(id, scene);
         this.image = 'marisa';
         this.bossParams = boss_params[id];
-        this.modeShotNum = 20;
+        this.mode = 0;
+        this.cardList = [
+            '符卡：小行星带'
+        ]
     }
     init() {
         this.indexX = 0;
@@ -13,9 +16,8 @@ class Marisa extends Boss {
         this.spriteWidth = 128;
         this.spriteHeight = 128;
         this.x = this.scene.width / 2;
-        this.y = 0 - this.spriteHeight;
+        this.y = this.spriteHeight;
         this.speed = 150;
-        this.mode = 0;
         this.startTalk = this.bossParams.startTalk;
         this.endTalk = this.bossParams.endTalk;
         Boss.prototype.init.apply(this, arguments);
@@ -25,11 +27,16 @@ class Marisa extends Boss {
         Boss.prototype.update.apply(this, arguments);
         if (this.state != this.STATE_ATIVE)
             return 0;
-
-        // if (this.mode == 0 && this.frame_count % 100 == 0) {
-        //     this.starSpin();
-        //     this.mode = 1;
-        // }
+        if (this.cardNum == 0 &&
+            this.mode == 0) {
+            this.starSpin();
+            this.mode = 1;
+        };
+        if (this.cardNum == 1 &&
+            this.mode == 1) {
+            this.starSpinBigOne();
+            this.mode = 2;
+        };
         // if (this.mode == 0 && this.frame_count % 10 == 0 && this.modeShotNum > 0) {
 
         //     this.eventhorizon();
@@ -45,6 +52,28 @@ class Marisa extends Boss {
     }
     draw() {
         Boss.prototype.draw.apply(this, arguments);
+    }
+    // 第一种符卡
+    starSpin() {
+        for (let i = 0; i < 5; i++) {
+            let params = {
+                x: this.x,
+                y: this.y,
+                angle: i * 72,
+                speed: 0,
+                indexX: 2 + i * 2,
+                indexY: 10,
+                width: 16,
+                height: 16,
+                moveType: 9,
+                index: i,
+                turn: 0,
+            };
+            this.scene.enemyBulletManager.create(params);
+        }
+    }
+    doublespin() {
+
     }
     starSpinBigOne() {
         for (let i = 0; i < 9; i++) {
@@ -104,23 +133,6 @@ class Marisa extends Boss {
             this.scene.enemyBulletManager.create(params2);
         }
     }
-    starSpin() {
-        for (let i = 0; i < 5; i++) {
-            let params = {
-                x: this.x + Math.cos(this.toRadian(i * 72)) * 100,
-                y: this.y + Math.sin(this.toRadian(i * 72)) * 100,
-                angle: i * 72,
-                speed: 100,
-                indexX: 2 + i * 2,
-                indexY: 10,
-                width: 16,
-                height: 16,
-                moveType: 9,
-                index: i,
-            }
-            this.scene.enemyBulletManager.create(params);
-        }
-    }
     eventhorizon() {
         for (let i = 0; i < 4; i++) {
             let params = {
@@ -128,7 +140,7 @@ class Marisa extends Boss {
                 y: this.y,
                 angle: i * 12,
                 speed: 100,
-                indexX: 2+i,
+                indexX: 2 + i,
                 indexY: 10,
                 width: 16,
                 height: 16,
@@ -168,9 +180,46 @@ class Marisa extends Boss {
             this.scene.enemyBulletManager.create(params2);
         }
     }
-    notifyShot(type) {
-        this.mode = 0;
-        this.frame_count = 0;
+    shootMoon() {
+        for (let i = 0; i < 12; i++) {
+            // if(i%2==0){
+            //     let params = {
+            //         x:30*i+10,
+            //         y:this.scene.height,
+            //         angle:270,
+            //         speed:0,
+            //         indexX:3,
+            //         indexY:3,
+
+            //     }
+            // } else {
+            //     let params = {
+
+            //     }
+            // }
+        }
+    }
+    shootStar() {
+        // console.log(1);
+        let player = this.scene.player;
+        let ax = player.x - this.x;
+        let ay = player.y - this.y;
+        let angle = this.toAngle(Math.atan2(ay, ax));
+        // console.log(angle);
+        for (let i = -2; i < 2; i++) {
+            let params = {
+                x: this.x,
+                y: this.y,
+                angle: angle + Math.random() * 30 + 30 * i,
+                speed: 280 + Math.random() * 20,
+                indexX: 3,
+                indexY: 3,
+                width: 16,
+                height: 16,
+                moveType: 2,
+            }
+            this.scene.enemyBulletManager.create(params);
+        }
     }
 }
 export default Marisa;

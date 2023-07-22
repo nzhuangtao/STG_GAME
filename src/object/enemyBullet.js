@@ -5,6 +5,7 @@ class EnemyBullet extends BaseObject {
         super(id, scene);
         this.speed = 10;
         this.threeStageState = 0;
+        this.starSpeed = 0;
     }
     init(params) {
         this.params = params;
@@ -22,7 +23,7 @@ class EnemyBullet extends BaseObject {
         this.aimed = false;
         this.a = params.a || 1;
         this.maxA = params.maxSpeed || 300;
-        this.leafTurnNum = 0; // 叶子型运动中需要转一次向
+        this.leafTurnNum = 0;
         this.leafDelayState = 0;
         this.image = params.image || 'bullet';
         BaseObject.prototype.init.apply(this, arguments);
@@ -33,23 +34,18 @@ class EnemyBullet extends BaseObject {
     run() {
         switch (this.moveType) {
             case 1:
-                // 直线运动
                 this.linearMove();
                 break;
             case 2:
-                // 按照某个角度进行运动
                 this.scattering();
                 break;
             case 3:
-                // 环形
                 this.scattering()
                 break;
             case 4:
-                // 曲线弹
                 this.curve();
                 break;
             case 5:
-                // boss1 的 leaf
                 this.leaf();
                 break;
             case 6:
@@ -215,67 +211,70 @@ class EnemyBullet extends BaseObject {
     }
 
     starSpin() {
-        if (this.frame_count % 2 == 0) {
-            this.angle -= 2;
-            this.x = this.scene.boss.x + Math.cos(this.toRadian(this.angle)) * 100;
-            this.y = this.scene.boss.y + Math.sin(this.toRadian(this.angle)) * 100;
-        };
-        if (this.frame_count % 10 == 0) {
-            let params1 = {
-                x: this.x,
-                y: this.y,
-                angle: this.angle + 90,
-                speed: 200,
-                indexX: this.indexX,
-                indexY: this.indexY,
-                width: 16,
-                height: 16,
-                moveType: 10,
+        if (this.frame_count < 50) {
+            this.starSpeed += 2;
+        } else {
+            this.angle += 2;
+            if (this.frame_count >= 1000) {
+                this.frame_count = 50;
             };
+            if (this.frame_count % 10 == 0) {
+                let params1 = {
+                    x: this.x,
+                    y: this.y,
+                    angle: this.angle + 90,
+                    speed: 200,
+                    indexX: this.indexX,
+                    indexY: this.indexY,
+                    width: 16,
+                    height: 16,
+                    moveType: 10,
+                };
 
-            this.scene.enemyBulletManager.create(params1);
-            let params2 = {
-                x: this.x,
-                y: this.y,
-                angle: this.angle,
-                speed: 200,
-                indexX: this.indexX,
-                indexY: this.indexY,
-                width: 16,
-                height: 16,
-                moveType: 10,
-            }
-            this.scene.enemyBulletManager.create(params2);
-            let params3 = {
-                x: this.x,
-                y: this.y,
-                angle: this.angle,
-                speed: 250,
-                indexX: this.indexX,
-                indexY: this.indexY,
-                width: 16,
-                height: 16,
-                moveType: 10,
-            }
-            this.scene.enemyBulletManager.create(params3);
+                this.scene.enemyBulletManager.create(params1);
+                let params2 = {
+                    x: this.x,
+                    y: this.y,
+                    angle: this.angle,
+                    speed: 200,
+                    indexX: this.indexX,
+                    indexY: this.indexY,
+                    width: 16,
+                    height: 16,
+                    moveType: 10,
+                }
+                this.scene.enemyBulletManager.create(params2);
+                let params3 = {
+                    x: this.x,
+                    y: this.y,
+                    angle: this.angle,
+                    speed: 250,
+                    indexX: this.indexX,
+                    indexY: this.indexY,
+                    width: 16,
+                    height: 16,
+                    moveType: 10,
+                }
+                this.scene.enemyBulletManager.create(params3);
 
-            let params4 = {
-                x: this.x,
-                y: this.y,
-                angle: this.angle,
-                speed: 250,
-                indexX: this.indexX,
-                indexY: this.indexY,
-                width: 16,
-                height: 16,
-                moveType: 10,
-                index: this.params.index,
+                let params4 = {
+                    x: this.x,
+                    y: this.y,
+                    angle: this.angle,
+                    speed: 250,
+                    indexX: this.indexX,
+                    indexY: this.indexY,
+                    width: 16,
+                    height: 16,
+                    moveType: 10,
+                    index: this.params.index,
+                }
+                this.scene.enemyBulletManager.create(params4);
             }
-            this.scene.enemyBulletManager.create(params4);
-        }
-        if (this.frame_count > 500) {
-            this.scene.boss.notifyShot(1);
-            this.remove();
+        };
+        if (this.frame_count % 2 == 0) {
+            this.x = this.scene.boss.x + Math.cos(this.toRadian(this.angle)) * this.starSpeed;
+            this.y = this.scene.boss.y + Math.sin(this.toRadian(this.angle)) * this.starSpeed;
         };
     }
     star() {

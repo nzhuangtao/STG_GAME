@@ -6,9 +6,11 @@ class Boss extends BaseObject {
     STATE_START = 1;
     STATE_TALK = 2;
     STATE_ATIVE = 3;
+    STATE_CHARHE = 4;
+    STATE_WAIT = 5;
     constructor(id, scene) {
         super(id, scene);
-        this.state = this.STATE_START;
+        this.state = this.STATE_ATIVE;
         this.hp = 200;
         this.maxHp = 200;
         this.startTalk = [];
@@ -21,91 +23,66 @@ class Boss extends BaseObject {
         this.talkName = null;
         this.talkMessage = null;
         this.talkBar = null;
+        this.hpBar = null;
+        this.cardNum = 0;
+        this.num = 6;
+        this.cardList = [];
     }
     init() {
         this.talkList = this.startTalk;
+        // 初始化血条
+        this.hpBar = new PIXI.Graphics();
+        this.hpBar.beginFill(0xfff555, 1);
+        this.hpBar.drawRect(0, 0, this.scene.width, 30);
+        this.scene.playerLayer.addChild(this.hpBar);
+
         BaseObject.prototype.init.apply(this, arguments);
     }
     update() {
         BaseObject.prototype.update.apply(this, arguments);
 
-        if (this.state == this.STATE_START) {
-            // 入场动画
-            this.y += this.speed * this.scene.FPS;
+        this.updateHp();
+        // if (this.state == this.STATE_START) {
+        //     // 入场动画
+        //     this.y += this.speed * this.scene.FPS;
 
-            if (this.y >= this.spriteHeight) {
-                this.y = this.spriteHeight;
-                this.state = this.STATE_TALK;
-            };
-        };
-        
-        // 检查是否有对话
-        if (this.state == this.STATE_TALK) {
-
-            if (this.talkIndex < this.talkList.length) {
-
-                this.displayTalk();
-            } else {
-                this.hideTalk();
-                this.state = this.STATE_READY;
-            }
-        }
-        if (this.state == this.STATE_READY) {
-            this.spellCharge();
-            this.state = null;
-        }
-
-
-        // if (this.state == this.STATE_ATIVE && this.attack_mode == 1) {
-        //     this.shotLeftLeaf();
-        //     this.attack_mode = 2;
-        //     this.frame_count = 0;
-        // };
-        // if (this.frame_count > 100 && this.attack_mode == 2) {
-        //     this.shotRightLeaf();
-        //     this.frame_count = 0;
-        //     this.attack_mode = 3;
-        // };
-        // if (
-        //     this.frame_count > 100 &&
-        //     this.frame_count < 1000 &&
-        //     this.frame_count % 50 == 0 &&
-        //     this.attack_mode == 3) {
-        //     this.tripleorbs();
-        // }
-        // if(this.frame_count>1000 && this.attack_mode == 3){
-        //     this.frame_count = 0;
-        //     this.showSpellCard();
-        //     this.attack_mode = 4;
-        // };
-        // // 开符卡1
-        // if(this.attack_level == 2){
-        //     if(this.frame_count % 100 == 0 && this.circlenum<10){
-        //         this.shotCircle();
-        //         this.circlenum++
-        //     } else {
-        //         this.attack_level ++;
-        //         this.showSpellCard();
-        //     }
-        // };
-        // if(this.attack_mode == 5){
-        //     if(this.frame_count % 100 == 0 && this.circlenum<20){
-        //         this.shotSpawner();
-        //         this.circlenum++
+        //     if (this.y >= this.spriteHeight) {
+        //         this.y = this.spriteHeight;
+        //         this.state = this.STATE_TALK;
         //     };
+        // };
+
+        // // 检查是否有对话
+        // if (this.state == this.STATE_TALK) {
+
+        //     if (this.talkIndex < this.talkList.length) {
+
+        //         this.displayTalk();
+        //     } else {
+        //         this.hideTalk();
+        //         this.state = this.STATE_READY;
+        //     }
+        // }
+        if (this.state == this.STATE_CHARHE) {
+            this.SpellCardEffect();
+
+            this.state = this.STATE_WAIT;
+        }
+        // if (this.state == this.STATE_READY) {
+        //     this.spellCharge();
+        //     this.state = null;
         // }
     }
-    showSpellCard() {
+    SpellCardEffect() {
         let effect = this.scene.effectManager.create();
         let params = {
-            x: 640 / 2,
-            y: 480,
+            x: 0,
+            y: this.scene.height,
             image: "mokou_stand",
             effectType: 2,
+            cardName: this.cardList[this.cardNum-0],
         };
-
         effect.init(params);
-        effect.spellCard();
     }
     spellCharge() {
         for (let i = 0; i < 60; i++) {
@@ -175,9 +152,6 @@ class Boss extends BaseObject {
     }
     notifyTalk() {
         this.talkIndex += 1;
-    }
-    notifyActive() {
-        this.state = this.STATE_ATIVE;
     }
     notifySpellCard() {
 
@@ -365,11 +339,58 @@ class Boss extends BaseObject {
         this.sprite.x = this.x;
         this.sprite.y = this.y;
     }
-    drawHp() {
-
+    clearScreenBullet() {
+        let bullets = this.scene.enemyBulletManager.objects;
+        bullets.forEach((bullet) => {
+            this.scene.playerLayer.removeChild(bullet.sprite);
+            bullets.delete(bullet.id);
+        });
     }
-    handleCollision() {
+    changeState() { }
+    updateHp() {
+        if (this.hp <= 0) {
+            return 0;
+        };
+        let width = this.scene.width;
+        let s = this.hp / this.maxHp;
+        let currentWidth = width * s;
+        this.hpBar.width = currentWidth;
+    }
+    notifyChangeCard() {
+        this.cardNum++;
+        this.hp = this.maxHp;
+        // 更换符卡
+        // 播放符卡释放前特效
+        this.state = this.STATE_CHARHE;
+        this.clearScreenBullet();
+    }
+    notifyActive() {
+        this.state = this.STATE_ATIVE;
+        this.frame_count = 0;
+    }
+    die() {
+        this.state = this.STATE_DIE;
+        this.frame_count = 0;
+        // console.log('die');
+    }
+    checkCollisionWithPlayer() {
+        let player = this.scene.player;
+        // 主角处于死亡状态就不检查了
+        if (player.state == player.DIE_STATE ||
+            this.state != this.STATE_ATIVE)
+            return 0;
 
+        let bullets = this.scene.playerBulletManager.objects;
+        bullets.forEach((bullet) => {
+            if (bullet.checkCollision(this)) {
+                this.hp--;
+            }
+            if (this.hp <= 0 && this.num >= 0) {
+                // 清空所有弹幕
+                // 切换符卡
+                this.notifyChangeCard();
+            }
+        });
     }
 }
 export default Boss;

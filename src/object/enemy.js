@@ -56,12 +56,12 @@ class Enemy extends BaseObject {
         this.x += this.speed * FPS * Math.cos(radian);
         this.y += this.speed * FPS * Math.sin(radian);
 
-        for (let i = 0; i < this.bullets.length; i++) {
-            let bulletInfo = this.bullets[i];
-            if (this.frame_count >= bulletInfo.count) {
-                this.shot(bulletInfo);
-            }
-        }
+        // for (let i = 0; i < this.bullets.length; i++) {
+        //     let bulletInfo = this.bullets[i];
+        //     if (this.frame_count >= bulletInfo.count) {
+        //         this.shot(bulletInfo);
+        //     }
+        // }
     }
     shot(bulletInfo) {
 
@@ -127,10 +127,7 @@ class Enemy extends BaseObject {
                 width: 16,
                 height: 16,
                 moveType:3,
-            };
-      
-            //parmas = Object.assign(shotInfo,parmas);
-       
+            };  
             this.scene.enemyBulletManager.create(parmas);
         }
     }
