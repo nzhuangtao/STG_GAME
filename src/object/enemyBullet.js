@@ -8,7 +8,7 @@ class EnemyBullet extends BaseObject {
     }
     init(params) {
         this.params = params;
-
+        this.scale = params.scale || 1;
         this.moveType = params.moveType || 1;
         this.x = params.x;
         this.y = params.y;
@@ -27,7 +27,8 @@ class EnemyBullet extends BaseObject {
         this.image = params.image || 'bullet';
         BaseObject.prototype.init.apply(this, arguments);
         this.sprite.rotation = this.toRadian(this.angle - 90);
-        //this.sprite.scale = [0.5,0.5]; 
+        this.sprite.scale.set(this.scale, this.scale);
+        this.turnDir = 1;
     }
     run() {
         switch (this.moveType) {
@@ -41,7 +42,7 @@ class EnemyBullet extends BaseObject {
                 break;
             case 3:
                 // 环形
-                // this.scattering()
+                this.scattering()
                 break;
             case 4:
                 // 曲线弹
@@ -66,6 +67,18 @@ class EnemyBullet extends BaseObject {
             case 10:
                 this.star();
                 break;
+            case 11:
+                this.starSpanBig();
+                break;
+            case 12:
+                this.trispin();
+                break;
+            case 13:
+                this.twistSpawner();
+                break;
+            case 14:
+                this.twistStar();
+                break;
             default:
                 break;
         }
@@ -74,6 +87,9 @@ class EnemyBullet extends BaseObject {
         BaseObject.prototype.update.apply(this, arguments)
         this.run();
         this.removeOutOfStage();
+        if (this.frame_count > 10000) {
+            this.remove();
+        };
     }
     remove() {
         this.scene.playerLayer.removeChild(this.sprite);
@@ -85,6 +101,111 @@ class EnemyBullet extends BaseObject {
             this.remove();
         };
     }
+    trispin() {
+        if (this.frame_count < 50) {
+            this.turnDir += 2;
+        } else {
+            this.angle += 2;
+            if (this.frame_count % 10 == 0) {
+                let params1 = {
+                    x: this.x,
+                    y: this.y,
+                    angle: this.angle + 90,
+                    speed: 200,
+                    indexX: this.indexX,
+                    indexY: this.indexY,
+                    width: 16,
+                    height: 16,
+                    moveType: 10,
+                };
+
+                this.scene.enemyBulletManager.create(params1);
+                let params2 = {
+                    x: this.x,
+                    y: this.y,
+                    angle: this.angle - 90,
+                    speed: 200,
+                    indexX: this.indexX,
+                    indexY: this.indexY,
+                    width: 16,
+                    height: 16,
+                    moveType: 10,
+                };
+
+                this.scene.enemyBulletManager.create(params2);
+                let params3 = {
+                    x: this.x,
+                    y: this.y,
+                    angle: this.angle,
+                    speed: 200,
+                    indexX: this.indexX,
+                    indexY: this.indexY,
+                    width: 16,
+                    height: 16,
+                    moveType: 10,
+                };
+
+                this.scene.enemyBulletManager.create(params3);
+            }
+        }
+        this.x = this.scene.boss.x + Math.cos(this.toRadian(this.angle)) * this.turnDir;
+        this.y = this.scene.boss.y + Math.sin(this.toRadian(this.angle)) * this.turnDir;
+    }
+    twistSpawner() {
+        if (this.frame_count < 60) {
+            this.angle -= 3 - Math.abs((30 - this.frame_count) / 30) * 3;
+            this.turnDir += 2 * (80 - this.frame_count) / 60 + 0.5
+        } else if (this.frame_count < 600) {
+            if (this.frame_count % 10 == 0) {
+                if (this.frame_count < 100) {
+                    let params = {
+                        x: this.x,
+                        y: this.y,
+                        angle: this.angle + 180,
+                        speed: 0,
+                        indexX: this.indexX,
+                        indexY: this.indexY,
+                        width: 16,
+                        height: 16,
+                        moveType: 14,
+                    }
+                    this.scene.enemyBulletManager.create(params);
+                } else {
+                    let params = {
+                        x: this.x,
+                        y: this.y,
+                        angle: this.angle + 195,
+                        speed: 0,
+                        indexX: this.indexX,
+                        indexY: this.indexY,
+                        width: 16,
+                        height: 16,
+                        moveType: 14,
+                    }
+                    this.scene.enemyBulletManager.create(params);
+                }
+            }
+            if (this.frame_count < 100) {
+                this.turnDir += (100 - this.frame_count) / 40;
+                this.angle -= 1;
+            } else {
+                this.turnDir += 1;
+                this.angle += 1;
+            }
+        }
+        this.x = this.scene.boss.x + Math.cos(this.toRadian(this.angle)) * this.turnDir;
+        this.y = this.scene.boss.y + Math.sin(this.toRadian(this.angle)) * this.turnDir;
+    }
+    twistStar() {
+        //console.log("运动");
+        if (this.frame_count == 400) {
+            this.angle += 180;
+        } else if (this.frame_count > 400) {
+            this.speed = 200;
+        }
+        this.x += this.speed * this.scene.FPS * Math.cos(this.toRadian(this.angle));
+        this.y += this.speed * this.scene.FPS * Math.sin(this.toRadian(this.angle));
+    }
     curve() {
         if (this.speed <= 50) {
             this.speed += 1;
@@ -92,6 +213,7 @@ class EnemyBullet extends BaseObject {
         this.x += this.speed * (1 / 30) * Math.cos(this.toRadian(this.angle));
         this.y += this.speed * (1 / 30) * Math.sin(this.toRadian(this.angle));
     }
+
     starSpin() {
         if (this.frame_count % 2 == 0) {
             this.angle -= 2;
@@ -151,12 +273,13 @@ class EnemyBullet extends BaseObject {
             }
             this.scene.enemyBulletManager.create(params4);
         }
-        if(this.frame_count > 500){
+        if (this.frame_count > 500) {
             this.scene.boss.notifyShot(1);
             this.remove();
         };
     }
     star() {
+        //console.log(1);
         if (this.frame_count % 5 == 0) {
 
             if (this.params.index) {
@@ -168,6 +291,14 @@ class EnemyBullet extends BaseObject {
             } else {
                 this.angle += 2;
             }
+        };
+
+        this.x += this.speed * this.scene.FPS * Math.cos(this.toRadian(this.angle));
+        this.y += this.speed * this.scene.FPS * Math.sin(this.toRadian(this.angle));
+    }
+    starSpanBig() {
+        if (this.frame_count % 5 == 0) {
+            this.angle += 2;
         };
         this.x += this.speed * this.scene.FPS * Math.cos(this.toRadian(this.angle));
         this.y += this.speed * this.scene.FPS * Math.sin(this.toRadian(this.angle));

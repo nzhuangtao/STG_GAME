@@ -17,8 +17,8 @@ class Level extends BaseScene {
 
     BOSS_MARISA = 0;
     BOSS_MOKOU = 1;
-    FPS = 1/60;
-    constructor(game,width,height) {
+    FPS = 1 / 60;
+    constructor(game, width, height) {
         super(game)
         this.score = 0;
         this.bomb = 0;
@@ -72,30 +72,38 @@ class Level extends BaseScene {
         this.enemyManager.update();
         this.enemyBulletManager.update();
         // 检查是否需要生成敌人
-        // if (this.enemy_index < this.enemy_list.length) {
-        //     for (let i = 0; i < enemy_list.length; i++) {
-        //         let enemy = this.enemy_list[i];
-        //         if (!enemy.isExist && enemy.count <= this.frame_count) {
-        //             // 标记为已生成
-        //             enemy.isExist = true;
-        //             this.enemyManager.create(enemy);
-        //             // 已生成敌人数目增加
-        //             this.enemy_index++;
-        //         };
+        if (this.enemy_index < this.enemy_list.length) {
+            for (let i = 0; i < enemy_list.length; i++) {
+                let enemy = this.enemy_list[i];
+                if (!enemy.isExist && enemy.count <= this.frame_count) {
+                    // 标记为已生成
+                    enemy.isExist = true;
+                    this.enemyManager.create(enemy);
+                    // 已生成敌人数目增加
+                    this.enemy_index++;
+                };
+            }
+            if (this.enemy_index == this.enemy_list.length) {
+                this.frame_count = 0;
+            }
+        };
+        // if (
+        //     !this.isBossExist &&
+        //     this.enemy_index >= this.enemy_list.length &&
+        //     this.enemyManager.objects.size <= 0) {
+
+        //     if (this.frame_count % 100 == 0) {
+        //         this.boss.init();
+        //         this.isBossExist = true;
         //     }
         // };
-        if (
-            !this.isBossExist && 
-            this.enemyBulletManager.objects.size <= 0) {
-
-            this.boss.init();
-            this.isBossExist = true;
-        };
-        if (this.isBossExist) {
-            this.boss.update();
-        };
-        
-        // this.playerBulletManager.checkCollisonWithEnemy();
+        // if (this.isBossExist) {
+        //     this.boss.update();
+        // };
+        //console.log("敌人数目:" + this.enemyManager.objects.size);
+        //console.log("子弹数目:" + this.enemyBulletManager.objects.size);
+        this.playerBulletManager.checkCollisonWithEnemy();
+        //this.enemyBulletManager.checkCollisonWithPlayer();
     }
     draw() {
         this.player.draw();

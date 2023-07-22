@@ -3,6 +3,8 @@ import * as PIXI from 'pixi.js';
 import bullet_type from "../data/bullet";
 class Player extends BaseObject {
     TALK_STATE = 1;
+    DIE_STATE = 2;
+    ACTIVE_STATE = 3;
     constructor(id, scene) {
         super(id, scene);
         this.hp = 5;
@@ -12,7 +14,10 @@ class Player extends BaseObject {
         this.spriteHeight = 48;
         this.image = 'player';
         this.speed = 150;
-        this.state = 0;
+        this.state = this.ACTIVE_STATE;
+        this.alpha = 1;
+        this.initX = this.scene.width / 2;
+        this.initY = this.scene.height - this.spriteHeight;
     }
     init() {
         this.x = this.scene.width / 2;
@@ -21,12 +26,17 @@ class Player extends BaseObject {
     }
     update() {
         BaseObject.prototype.update.apply(this, arguments);
+        if (this.state == this.DIE_STATE && this.frame_count > 100) {
+            this.state = this.ACTIVE_STATE;
+            this.alpha = 1;
+        };
         if (this.game.input.iskeyDown(this.game.input.BUTTON_Z)) {
             if (this.state == this.TALK_STATE) {
                 if (this.frame_count % 8 === 0) {
                     this.scene.boss.notifyTalk();
                 };
-            } else {
+            };
+            if (this.state == this.ACTIVE_STATE) {
                 this.shot();
             };
         };
@@ -56,23 +66,32 @@ class Player extends BaseObject {
             this.indexY = 0;
         };
 
-        // if (this.x < 0) {
-        //     this.x = 0;
-        // }
-        // if (this.x > 640 - this.spriteWidth) {
-        //     this.x = 640 - this.spriteWidth;
-        // }
-        // if (this.y < 0) {
-        //     this.y = 0;
+        if (this.x < 0) {
+            this.x = 0;
+        }
+        if (this.x > this.scene.width - this.spriteWidth) {
+            this.x = this.scene.width - this.spriteWidth;
+        }
+        if (this.y < 0) {
+            this.y = 0;
 
-        // }
-        // if (this.y > 480 - this.spriteHeight) {
-        //     this.y = 480 - this.spriteHeight;
-        // }
+        }
+        if (this.y > this.scene.height - this.spriteHeight) {
+            this.y = this.scene.height - this.spriteHeight;
+        }
     }
     shot() {
         if (this.frame_count % 5 != 0) return 0;
+
         this.scene.playerBulletManager.create();
+    }
+    die() {
+        this.state = this.DIE_STATE;
+
+        this.frame_count = 0;
+        this.x = this.initX;
+        this.y = this.initY;
+        this.alpha = 0.5;
     }
     draw() {
         if (this.frame_count % 5 == 0) {
@@ -83,6 +102,7 @@ class Player extends BaseObject {
         };
         this.sprite.x = this.x;
         this.sprite.y = this.y;
+        this.sprite.alpha = this.alpha;
         BaseObject.prototype.draw.apply(this, arguments);
     }
 }

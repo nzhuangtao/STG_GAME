@@ -35,21 +35,21 @@ class Boss extends BaseObject {
 
             if (this.y >= this.spriteHeight) {
                 this.y = this.spriteHeight;
-                this.state = this.STATE_READY;
+                this.state = this.STATE_TALK;
             };
         };
         
         // 检查是否有对话
-        // if (this.state == this.STATE_TALK) {
+        if (this.state == this.STATE_TALK) {
 
-        //     if (this.talkIndex < this.talkList.length) {
+            if (this.talkIndex < this.talkList.length) {
 
-        //         this.displayTalk();
-        //     } else {
-        //         this.hideTalk();
-        //         this.state = this.STATE_READY;
-        //     }
-        // }
+                this.displayTalk();
+            } else {
+                this.hideTalk();
+                this.state = this.STATE_READY;
+            }
+        }
         if (this.state == this.STATE_READY) {
             this.spellCharge();
             this.state = null;

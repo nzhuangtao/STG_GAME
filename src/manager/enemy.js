@@ -7,9 +7,12 @@ class EnemyManager extends BaseManager{
         this.enemyIndex = 0;
     }
     create(params){
+       
         let enemy = new Enemy(this.enemyIndex,this.scene);
         let enemyType = enemy_type[params.type];
+
         enemy.init({
+            index:params.index,
             indexX:enemyType.indexX,
             indexY:enemyType.indexY,
             width:enemyType.width,
@@ -17,6 +20,8 @@ class EnemyManager extends BaseManager{
             num:enemyType.num,
             x:params.x,
             y:params.y,
+            angle:params.angle,
+            speed:params.speed||100,
             moveType:params.moveType, // 运动方式
             bullets:params.bullets,
         });

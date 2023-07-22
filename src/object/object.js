@@ -17,8 +17,9 @@ class BaseObject {
         this.spriteWidth = 0;
         this.spriteHeight = 0;
         this.sprite = null;
-        this.angle = 0;
+        this.angle = 90;
         this.speed = 0;
+        this.turn = this.angle;
     }
     init() {
         let texture = getImageByName(this.image);
