@@ -1,5 +1,4 @@
 import BaseObject from "./object";
-import bullet_type from "../data/bullet";
 import * as PIXI from 'pixi.js'
 import { getImageByName } from "../imageLoader";
 class Boss extends BaseObject {
@@ -8,11 +7,14 @@ class Boss extends BaseObject {
     STATE_ATIVE = 3;
     STATE_CHARHE = 4;
     STATE_WAIT = 5;
+    STATE_DIE = 6;
+    hpBarHeight = 20;
     constructor(id, scene) {
         super(id, scene);
-        this.state = this.STATE_ATIVE;
-        this.hp = 200;
-        this.maxHp = 200;
+        this.config = null;
+        this.state = this.STATE_CHARHE;
+        this.hp = 10;
+        this.maxHp = 10;
         this.startTalk = [];
         this.endTalk = [];
         this.talkIndex = 0;
@@ -24,24 +26,36 @@ class Boss extends BaseObject {
         this.talkMessage = null;
         this.talkBar = null;
         this.hpBar = null;
-        this.cardNum = 0;
-        this.num = 6;
+        this.cardIndex = 0;
+        this.hpNum = 1;
         this.cardList = [];
+        this.imageStand = '';
+        this.lastCardEffect = null;
+        this.isExist = false;
     }
     init() {
-        this.talkList = this.startTalk;
+        this.isExist = true;
+        // 初始化对话
+        this.initTalk();
         // 初始化血条
-        this.hpBar = new PIXI.Graphics();
-        this.hpBar.beginFill(0xfff555, 1);
-        this.hpBar.drawRect(0, 0, this.scene.width, 30);
-        this.scene.playerLayer.addChild(this.hpBar);
-
+        this.initHpBar();
         BaseObject.prototype.init.apply(this, arguments);
     }
+    initTalk() {
+        this.startTalk = this.config.startTalk;
+        this.endTalk = this.config.endTalk;
+        this.talkList = this.startTalk;
+    }
+    initHpBar() {
+        this.hpBar = new PIXI.Graphics();
+        this.hpBar.beginFill(0xffffff, 1);
+        this.hpBar.drawRect(15, 15, this.scene.width - 30, this.hpBarHeight);
+        this.scene.playerLayer.addChild(this.hpBar);
+    }
     update() {
+        if (!this.isExist)
+            return 0;
         BaseObject.prototype.update.apply(this, arguments);
-
-        this.updateHp();
         // if (this.state == this.STATE_START) {
         //     // 入场动画
         //     this.y += this.speed * this.scene.FPS;
@@ -52,69 +66,37 @@ class Boss extends BaseObject {
         //     };
         // };
 
-        // // 检查是否有对话
-        // if (this.state == this.STATE_TALK) {
-
-        //     if (this.talkIndex < this.talkList.length) {
-
-        //         this.displayTalk();
-        //     } else {
-        //         this.hideTalk();
-        //         this.state = this.STATE_READY;
-        //     }
-        // }
-        if (this.state == this.STATE_CHARHE) {
-            this.SpellCardEffect();
-
-            this.state = this.STATE_WAIT;
+        // 检查是否有对话
+        if (this.state == this.STATE_TALK) {
+            this.handleTalk();
         }
-        // if (this.state == this.STATE_READY) {
-        //     this.spellCharge();
-        //     this.state = null;
-        // }
-    }
-    SpellCardEffect() {
-        let effect = this.scene.effectManager.create();
-        let params = {
-            x: 0,
-            y: this.scene.height,
-            image: "mokou_stand",
-            effectType: 2,
-            cardName: this.cardList[this.cardNum-0],
+        // 死亡后通知关卡模块显示gamewin
+        if (this.state == this.STATE_DIE) {
+            this.notifyGameWin();
         };
-        effect.init(params);
     }
-    spellCharge() {
-        for (let i = 0; i < 60; i++) {
-            let angle = i * 6;
-            let params = {
-                x: this.x + Math.cos(angle / 180 * Math.PI) * 200,
-                y: this.y + Math.sin(angle / 180 * Math.PI) * 200,
-                angle: angle,
-                speed: 200 + Math.random() * 10,
-                effectType: 1,
+    handleTalk() {
+        if (this.talkIndex < this.talkList.length) {
+            this.showTalk();
+        } else {
+            this.hideTalk();
+            if (this.isDie) {
+                this.state = this.STATE_DIE;
+            } else {
+                this.state = this.STATE_READY;
             }
-            let effect = this.scene.effectManager.create();
-            effect.init(params);
-            effect.initSpellCharge();
-        };
+        }
     }
-    hideTalk() {
-        let stage = this.scene.game.stage;
-        stage.removeChild(this.talkPreview);
-        stage.removeChild(this.talkBar);
-        stage.removeChild(this.talkMessage);
-        stage.removeChild(this.talkName);
-        this.talkAppear = false;
-        this.talkIndex = 0;
-        this.lastTalkIndex = 0;
+    notifyGameWin() {
+        this.scene.getGameWinEvent();
+        this.state = this.STATE_WAIT;
     }
-    displayTalk() {
+    showTalk() {
         let talk = this.talkList[this.talkIndex];
         if (!this.talkAppear) {
             // 初始化对话，将所有对话需要用到的精灵添加到场景
             // 让人物暂时不更新
-            this.scene.player.state = 1;
+            this.scene.player.state = this.scene.player.TALK_STATE;
             // 画人物
             let texture = getImageByName(talk.image);
             this.talkPreview = new PIXI.Sprite(texture);
@@ -150,8 +132,49 @@ class Boss extends BaseObject {
             this.lastTalkIndex = this.talkIndex;
         };
     }
-    notifyTalk() {
-        this.talkIndex += 1;
+    hideTalk() {
+        this.scene.player.state = this.scene.player.ACTIVE_STATE;
+
+        let stage = this.scene.game.stage;
+        stage.removeChild(this.talkPreview);
+        stage.removeChild(this.talkBar);
+        stage.removeChild(this.talkMessage);
+        stage.removeChild(this.talkName);
+        this.talkAppear = false;
+        this.talkIndex = 0;
+        this.lastTalkIndex = 0;
+    }
+    spellCardEffect() {
+        console.log("释放符卡");
+        if (this.lastCardEffect) {
+            this.lastCardEffect.remove();
+            this.lastCardEffect = null;
+        };
+        this.lastCardEffect = this.scene.effectManager.create();
+        let params = {
+            x: this.scene.width,
+            y: 0,
+            effectType: 2,
+            imageStand: this.imageStand,
+            alpha: 0.8,
+            cardName: this.cardList[this.cardIndex],
+        };
+        this.lastCardEffect.initSpellCard(params);
+    }
+    spellCharge() {
+        for (let i = 0; i < 60; i++) {
+            let angle = i * 6;
+            let params = {
+                x: this.x + Math.cos(angle / 180 * Math.PI) * 200,
+                y: this.y + Math.sin(angle / 180 * Math.PI) * 200,
+                angle: angle,
+                speed: 200 + Math.random() * 10,
+                effectType: 1,
+            }
+            let effect = this.scene.effectManager.create();
+            effect.init(params);
+            effect.initSpellCharge();
+        };
     }
     notifySpellCard() {
 
@@ -336,8 +359,13 @@ class Boss extends BaseObject {
         }
     }
     draw() {
+        if (!this.isExist)
+            return 0;
+
         this.sprite.x = this.x;
         this.sprite.y = this.y;
+
+        BaseObject.prototype.draw.apply(this, arguments);
     }
     clearScreenBullet() {
         let bullets = this.scene.enemyBulletManager.objects;
@@ -348,48 +376,54 @@ class Boss extends BaseObject {
     }
     changeState() { }
     updateHp() {
-        if (this.hp <= 0) {
+        if (this.hp < 0)
             return 0;
-        };
-        let width = this.scene.width;
+        let width = this.scene.width - 30;
         let s = this.hp / this.maxHp;
         let currentWidth = width * s;
         this.hpBar.width = currentWidth;
-    }
-    notifyChangeCard() {
-        this.cardNum++;
-        this.hp = this.maxHp;
-        // 更换符卡
-        // 播放符卡释放前特效
-        this.state = this.STATE_CHARHE;
-        this.clearScreenBullet();
     }
     notifyActive() {
         this.state = this.STATE_ATIVE;
         this.frame_count = 0;
     }
     die() {
-        this.state = this.STATE_DIE;
-        this.frame_count = 0;
-        // console.log('die');
+        // 检查是否存在结束时对话
+        this.isDie = true;
+        if (this.endTalk.length > 0) {
+            this.state = this.STATE_TALK;
+            this.talkList = this.endTalk;
+        };
+    }
+    changeCard() {
+        this.cardIndex++;
+        this.hp = this.maxHp;
+        // 播放符卡释放前特效
+        this.state = this.STATE_CHARHE;
+        // this.clearScreenBullet();
     }
     checkCollisionWithPlayer() {
         let player = this.scene.player;
-        // 主角处于死亡状态就不检查了
         if (player.state == player.DIE_STATE ||
-            this.state != this.STATE_ATIVE)
+            this.state == this.STATE_DIE)
             return 0;
+
+        if (this.hp <= 0 && this.hpNum > 0) {
+            this.changeCard();
+            this.hpNum--;
+            return 0;
+        }
+        if (this.hpNum <= 0 && this.hp <= 0) {
+            this.die();
+            return 0;
+        };
 
         let bullets = this.scene.playerBulletManager.objects;
         bullets.forEach((bullet) => {
             if (bullet.checkCollision(this)) {
                 this.hp--;
-            }
-            if (this.hp <= 0 && this.num >= 0) {
-                // 清空所有弹幕
-                // 切换符卡
-                this.notifyChangeCard();
-            }
+                bullet.remove();
+            };
         });
     }
 }

@@ -1,7 +1,7 @@
 
 import EnemyBullet from "../object/enemyBullet";
 import BaseManager from "./base";
-
+import getBulletType from "../data/bullet";
 class EnemyBulletManager extends BaseManager {
     constructor(scene) {
         super(scene)
@@ -10,7 +10,11 @@ class EnemyBulletManager extends BaseManager {
     }
     create(params) {
         let bullet = new EnemyBullet(this.bulletIndex, this.scene);
-        bullet.init(params);
+        let bulletType = getBulletType(params.type);
+        bullet.init({
+            ...bulletType,
+            ...params,
+        });
         this.objects.set(this.bulletIndex, bullet);
         this.bulletIndex++;
     }

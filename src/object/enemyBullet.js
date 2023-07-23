@@ -1,6 +1,8 @@
 import BaseObject from "./object";
 
 class EnemyBullet extends BaseObject {
+
+    FPS = 1/60
     constructor(id, scene) {
         super(id, scene);
         this.speed = 10;
@@ -29,7 +31,6 @@ class EnemyBullet extends BaseObject {
         BaseObject.prototype.init.apply(this, arguments);
         this.sprite.rotation = this.toRadian(this.angle - 90);
         this.sprite.scale.set(this.scale, this.scale);
-        this.turnDir = 1;
     }
     run() {
         switch (this.moveType) {
@@ -67,13 +68,16 @@ class EnemyBullet extends BaseObject {
                 this.starSpanBig();
                 break;
             case 12:
-                this.trispin();
+                this.triSpin();
                 break;
             case 13:
                 this.twistSpawner();
                 break;
             case 14:
                 this.twistStar();
+                break;
+            case 15:
+                this.twistDelay();
                 break;
             default:
                 break;
@@ -97,9 +101,9 @@ class EnemyBullet extends BaseObject {
             this.remove();
         };
     }
-    trispin() {
+    triSpin() {
         if (this.frame_count < 50) {
-            this.turnDir += 2;
+            this.starSpeed += 2;
         } else {
             this.angle += 2;
             if (this.frame_count % 10 == 0) {
@@ -144,63 +148,8 @@ class EnemyBullet extends BaseObject {
                 this.scene.enemyBulletManager.create(params3);
             }
         }
-        this.x = this.scene.boss.x + Math.cos(this.toRadian(this.angle)) * this.turnDir;
-        this.y = this.scene.boss.y + Math.sin(this.toRadian(this.angle)) * this.turnDir;
-    }
-    twistSpawner() {
-        if (this.frame_count < 60) {
-            this.angle -= 3 - Math.abs((30 - this.frame_count) / 30) * 3;
-            this.turnDir += 2 * (80 - this.frame_count) / 60 + 0.5
-        } else if (this.frame_count < 600) {
-            if (this.frame_count % 10 == 0) {
-                if (this.frame_count < 100) {
-                    let params = {
-                        x: this.x,
-                        y: this.y,
-                        angle: this.angle + 180,
-                        speed: 0,
-                        indexX: this.indexX,
-                        indexY: this.indexY,
-                        width: 16,
-                        height: 16,
-                        moveType: 14,
-                    }
-                    this.scene.enemyBulletManager.create(params);
-                } else {
-                    let params = {
-                        x: this.x,
-                        y: this.y,
-                        angle: this.angle + 195,
-                        speed: 0,
-                        indexX: this.indexX,
-                        indexY: this.indexY,
-                        width: 16,
-                        height: 16,
-                        moveType: 14,
-                    }
-                    this.scene.enemyBulletManager.create(params);
-                }
-            }
-            if (this.frame_count < 100) {
-                this.turnDir += (100 - this.frame_count) / 40;
-                this.angle -= 1;
-            } else {
-                this.turnDir += 1;
-                this.angle += 1;
-            }
-        }
-        this.x = this.scene.boss.x + Math.cos(this.toRadian(this.angle)) * this.turnDir;
-        this.y = this.scene.boss.y + Math.sin(this.toRadian(this.angle)) * this.turnDir;
-    }
-    twistStar() {
-        //console.log("运动");
-        if (this.frame_count == 400) {
-            this.angle += 180;
-        } else if (this.frame_count > 400) {
-            this.speed = 200;
-        }
-        this.x += this.speed * this.scene.FPS * Math.cos(this.toRadian(this.angle));
-        this.y += this.speed * this.scene.FPS * Math.sin(this.toRadian(this.angle));
+        this.x = this.scene.boss.x + Math.cos(this.toRadian(this.angle)) * this.starSpeed;
+        this.y = this.scene.boss.y + Math.sin(this.toRadian(this.angle)) * this.starSpeed;
     }
     curve() {
         if (this.speed <= 50) {
@@ -209,7 +158,7 @@ class EnemyBullet extends BaseObject {
         this.x += this.speed * (1 / 30) * Math.cos(this.toRadian(this.angle));
         this.y += this.speed * (1 / 30) * Math.sin(this.toRadian(this.angle));
     }
-
+    // 魔理沙一阶段
     starSpin() {
         if (this.frame_count < 50) {
             this.starSpeed += 2;
@@ -218,14 +167,14 @@ class EnemyBullet extends BaseObject {
             if (this.frame_count >= 1000) {
                 this.frame_count = 50;
             };
-            if (this.frame_count % 10 == 0) {
+            if (this.frame_count % 20 == 0) {
                 let params1 = {
                     x: this.x,
                     y: this.y,
                     angle: this.angle + 90,
                     speed: 200,
                     indexX: this.indexX,
-                    indexY: this.indexY,
+                    indexY: this.indexY + 7,
                     width: 16,
                     height: 16,
                     moveType: 10,
@@ -238,7 +187,7 @@ class EnemyBullet extends BaseObject {
                     angle: this.angle,
                     speed: 200,
                     indexX: this.indexX,
-                    indexY: this.indexY,
+                    indexY: this.indexY + 7,
                     width: 16,
                     height: 16,
                     moveType: 10,
@@ -250,7 +199,7 @@ class EnemyBullet extends BaseObject {
                     angle: this.angle,
                     speed: 250,
                     indexX: this.indexX,
-                    indexY: this.indexY,
+                    indexY: this.indexY + 7,
                     width: 16,
                     height: 16,
                     moveType: 10,
@@ -263,7 +212,7 @@ class EnemyBullet extends BaseObject {
                     angle: this.angle,
                     speed: 250,
                     indexX: this.indexX,
-                    indexY: this.indexY,
+                    indexY: this.indexY + 7,
                     width: 16,
                     height: 16,
                     moveType: 10,
@@ -272,13 +221,128 @@ class EnemyBullet extends BaseObject {
                 this.scene.enemyBulletManager.create(params4);
             }
         };
+        // 围绕自己中心转动
         if (this.frame_count % 2 == 0) {
             this.x = this.scene.boss.x + Math.cos(this.toRadian(this.angle)) * this.starSpeed;
             this.y = this.scene.boss.y + Math.sin(this.toRadian(this.angle)) * this.starSpeed;
         };
     }
+    twistSpawner() {
+        this.x = this.scene.boss.x + Math.cos(this.toRadian(this.angle)) * this.speed;
+        this.y = this.scene.boss.y + Math.sin(this.toRadian(this.angle)) * this.speed;
+
+        if (this.frame_count < 60) {
+            this.angle -= 3 - Math.abs((30 - this.frame_count) / 30) * 3;
+            this.speed += 2 * (80 - this.frame_count) / 60 + 0.5
+        }
+        else if (this.frame_count < 300) {
+            if (this.frame_count < 100) {
+                if (this.frame_count % 10 == 0) {
+                    let params = {
+                        x: this.x,
+                        y: this.y,
+                        angle: this.angle + Math.random() * 180,
+                        speed: 0,
+                        indexX: this.indexX,
+                        indexY: this.indexY,
+                        width: 16,
+                        height: 16,
+                        moveType: 14,
+                    }
+                    this.scene.enemyBulletManager.create(params);
+                };
+                this.speed += 0.1;
+                this.angle -= 2;
+            } else {
+                if (this.frame_count % 10 == 0) {
+                    let params = {
+                        x: this.x,
+                        y: this.y,
+                        angle: this.angle + Math.random() * 180,
+                        speed: 0,
+                        indexX: this.indexX,
+                        indexY: this.indexY,
+                        width: 16,
+                        height: 16,
+                        moveType: 14,
+                    }
+                    this.scene.enemyBulletManager.create(params);
+                };
+                this.speed += 1;
+                this.angle += 2;
+            }
+        }
+        else if (this.frame_count < 600) {
+            if (this.frame_count % 6 == 0) {
+                for (let i = 0; i < 3; i++) {
+                    let params = {
+                        x: this.x,
+                        y: this.y,
+                        angle: this.angle + 10 * i + 90,
+                        speed: 200 + 10 * i,
+                        indexX: this.indexX,
+                        indexY: this.indexY,
+                        width: 16,
+                        height: 16,
+                        moveType: 10,
+                    };
+                    this.scene.enemyBulletManager.create(params);
+                }
+            }
+            this.angle -= 1;
+        }
+        else if (this.frame_count < 1000) {
+            if (this.frame_count % 10 == 0) {
+                let params = {
+                    x: this.x,
+                    y: this.y,
+                    angle: this.angle,
+                    speed: 0,
+                    indexX: 3,
+                    indexY: 3,
+                    width: 16,
+                    height: 16,
+                    moveType: 15,
+                };
+                this.scene.enemyBulletManager.create(params);
+            }
+            this.angle -= 1;
+            this.speed -= 1;
+        } else if (this.frame_count < 1100) {
+            this.angle -= 0.4;
+            this.speed += 3;
+        }
+        else if (this.frame_count < 1400) {
+            if (this.frame_count % 12 == 0) {
+                let params = {
+                    x: this.x,
+                    y: this.y,
+                    angle: this.angle,
+                    speed: 0,
+                    indexX: 3,
+                    indexY: 3,
+                    width: 16,
+                    height: 16,
+                    moveType: 15,
+                };
+                this.scene.enemyBulletManager.create(params);
+            }
+            this.angle += 0.4;
+            this.speed -= 1.4;
+        } else {
+            this.frame_count = 0;
+        }
+    }
+    twistStar() {
+        if (this.frame_count == 400) {
+            this.angle += 180;
+        } else if (this.frame_count > 400) {
+            this.speed = 2;
+        }
+        this.x += this.speed * Math.cos(this.toRadian(this.angle));
+        this.y += this.speed * Math.sin(this.toRadian(this.angle));
+    }
     star() {
-        //console.log(1);
         if (this.frame_count % 5 == 0) {
 
             if (this.params.index) {
@@ -299,6 +363,18 @@ class EnemyBullet extends BaseObject {
         if (this.frame_count % 5 == 0) {
             this.angle += 2;
         };
+        this.x += this.speed * this.scene.FPS * Math.cos(this.toRadian(this.angle));
+        this.y += this.speed * this.scene.FPS * Math.sin(this.toRadian(this.angle));
+    }
+    twistDelay() {
+        if (this.frame_count > 300) {
+            this.speed = 100;
+        }
+        if (this.frame_count == 200) {
+            // this.speed = Math.min((this.frame_count-200)/100, 1)*2
+            this.angle -= 20;
+        };
+        this.turn += 3 / 2;
         this.x += this.speed * this.scene.FPS * Math.cos(this.toRadian(this.angle));
         this.y += this.speed * this.scene.FPS * Math.sin(this.toRadian(this.angle));
     }
