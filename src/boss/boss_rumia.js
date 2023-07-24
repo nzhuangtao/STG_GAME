@@ -1,6 +1,7 @@
 import Boss from "../object/boss";
 import BOSS_CONFIG from "../config/boss";
 import TALK_CONFIG from "../config/talk";
+import getBulletType, { getBeam } from "../data/bullet";
 
 class Rumia extends Boss {
     MODE_NORMAL = 'normal';
@@ -21,6 +22,8 @@ class Rumia extends Boss {
         this.config = null;
         this.mode = this.MODE_NORMAL;
         this.spriteNum = 0;
+        this.beamNum = 1;
+        this.nightWarblerType = 0;
     }
     init() {
         this.config = BOSS_CONFIG[this.id];
@@ -30,7 +33,7 @@ class Rumia extends Boss {
         this.talkList = this.startTalk;
         this.spriteWidth = 128;
         this.spriteHeight = 128;
-        
+
         this.changeMode(this.MODE_NORMAL);
 
         this.cardIndex = -1;
@@ -40,6 +43,8 @@ class Rumia extends Boss {
         Boss.prototype.init.apply(this, arguments);
     }
     changeMode(modeName, num = 1) {
+        if (this.mode == modeName)
+            return 0;
         this.mode = modeName;
         let info = this.config[modeName];
 
@@ -64,7 +69,9 @@ class Rumia extends Boss {
         if (this.state == this.STATE_ATIVE) {
             if (this.cardIndex == -1) {
                 this.state = this.STAET_ATTACK1;
+                this.changeMode(this.MODE_ATTACK, 1);
             } else if (this.cardIndex == 0) {
+                this.changeMode(this.MODE_ATTACK, 2);
                 this.state = this.STATE_ATTACK2;
             } else if (this.cardIndex == 1) {
                 this.state = this.STATE_ATTACK3;
@@ -74,13 +81,16 @@ class Rumia extends Boss {
         };
 
         if (this.state == this.STAET_ATTACK1) {
-            if (this.frame_count % 10 == 0) {
-                this.shotCircleBullet();
-            }
+
+            if (this.frame_count < 200 && this.frame_count % 20 == 0) {
+                this.moonSpell();
+            } else if (this.frame_count < 300) {
+                this.state = this.STATE_ATTACK2;
+            };
         };
         if (this.state == this.STATE_ATTACK2) {
-            if (this.frame_count % 10 == 0) {
-                this.shotRingBullet();
+            if (this.frame_count % 20 == 0) {
+                this.nightWarbler();
             }
         };
         if (this.state == this.STATE_ATTACK3) {
@@ -93,6 +103,57 @@ class Rumia extends Boss {
                 this.tripleorbs();
             }
         }
+    }
+    beam() {
+
+    }
+    // 月符
+    moonLightSpell() {
+        let bulletType = getBulletType(38);
+        for (let i = 0; i < 12; i++) {
+            let params = {
+                x: this.x,
+                y: this.y,
+                moveType: 2,
+                speed: 240,
+                angle: i * 36 + 12,
+                ...bulletType,
+            };
+            this.scene.enemyBulletManager.create(params);
+        }
+    }
+    nightWarbler() {
+        let bulletType = {};
+        let start = 0;
+        let step = 9;
+        if (this.nightWarblerType == 0) {
+            bulletType = getBulletType(38)
+            start = 180;
+            step = -9
+            this.nightWarblerType = 1;
+        } else {
+            bulletType = getBulletType(39)
+            start = 0;
+            step = 9;
+            this.nightWarblerType = 0
+        };
+        for (let j = 0; j < 3; j++) {
+            for (let i = 0; i < 12; i++) {
+                let params = {
+                    x: this.x,
+                    y: this.y,
+                    moveType: 2,
+                    speed: 240 + j * 20,
+                    angle: start + step * i,
+                    ...bulletType,
+                };
+                this.scene.enemyBulletManager.create(params);
+            }
+        }
+    }
+    // 暗符 境界线
+    darkSpell() {
+
     }
     draw() {
         if (this.mode == this.MODE_NORMAL) {
@@ -111,59 +172,6 @@ class Rumia extends Boss {
             }
         }
         Boss.prototype.draw.apply(this, arguments);
-    }
-    shotCircleBullet() {
-
-        for (let i = 0; i < 12; i++) {
-            let params = {
-                x: this.x,
-                y: this.y,
-                moveType: 2,
-                speed: 240,
-                angle: i * 36 + 12,
-                indexX: 13,
-                indexY: 4,
-                width: 16,
-                height: 16,
-            };
-            this.scene.enemyBulletManager.create(params);
-        }
-    }
-    shotRingBullet() {
-        for (let i = 0; i < 8; i++) {
-            let params = {
-                x: this.x,
-                y: this.y,
-                moveType: 2,
-                speed: 240,
-                angle: i * 45 + this.frame_count,
-                indexX: 7,
-                indexY: 3,
-                width: 16,
-                height: 16,
-            };
-            this.scene.enemyBulletManager.create(params);
-        }
-    }
-    tripleorbs() {
-        let player = this.scene.player;
-        let ax = player.x - this.x;
-        let ay = player.y - this.y;
-        let angle = this.toAngle(Math.atan2(ay, ax));
-        for (var j = 0; j < 3; j++) {
-            let params = {
-                x: this.x,
-                y: this.y,
-                moveType: 2,
-                speed: 240,
-                angle: angle + j * 10 + Math.random() * 3,
-                indexX: 3,
-                indexY: 2,
-                width: 16,
-                height: 16,
-            };
-            this.scene.enemyBulletManager.create(params);
-        }
     }
 }
 export default Rumia;

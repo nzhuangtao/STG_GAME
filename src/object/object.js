@@ -26,11 +26,10 @@ class BaseObject {
         let rectangle = new PIXI.Rectangle(this.indexX * this.spriteWidth, this.indexY * this.spriteHeight, this.spriteWidth, this.spriteHeight);
         this.texture.frame = rectangle;
         this.sprite = new PIXI.Sprite(this.texture);
-
         this.sprite.x = this.x;
         this.sprite.y = this.y;
+
         this.sprite.anchor.set(0.5);
-        this.sprite.rotation = this.toRadian(this.turn);
         this.scene.playerLayer.addChild(this.sprite);
     }
     update() {
@@ -43,13 +42,14 @@ class BaseObject {
         this.sprite.sprite = this.texture;
     }
     outOfStage() {
-        let left = 0 - this.side;
-        let right = this.scene.width + this.side;
-        let top = 0 - this.side;
-        let bottom = this.scene.height + this.side;
-        if (this.y > bottom || 
-            this.y < top || 
-            this.x > right || 
+        let side = 1000;
+        let left = 0 - side;
+        let right = this.scene.width + side;
+        let top = 0 - side;
+        let bottom = this.scene.height + side;
+        if (this.y > bottom ||
+            this.y < top ||
+            this.x > right ||
             this.x < left) {
             return true;
         } else {

@@ -2,7 +2,7 @@ import BaseObject from "./object";
 
 class EnemyBullet extends BaseObject {
 
-    FPS = 1/60
+    FPS = 1 / 60
     constructor(id, scene) {
         super(id, scene);
         this.speed = 10;
@@ -15,22 +15,19 @@ class EnemyBullet extends BaseObject {
         this.moveType = params.moveType || 1;
         this.x = params.x;
         this.y = params.y;
-        this.turn_angle = params.turn_angle || 0;
         this.angle = params.angle;
         this.indexX = params.indexX;
         this.indexY = params.indexY;
         this.spriteWidth = params.width;
         this.spriteHeight = params.height;
+        this.turn = this.angle - 90;
         this.speed = params.speed;
         this.aimed = false;
-        this.a = params.a || 1;
-        this.maxA = params.maxSpeed || 300;
-        this.leafTurnNum = 0;
-        this.leafDelayState = 0;
         this.image = params.image || 'bullet';
+
         BaseObject.prototype.init.apply(this, arguments);
-        this.sprite.rotation = this.toRadian(this.angle - 90);
-        this.sprite.scale.set(this.scale, this.scale);
+        this.sprite.scale.set(this.scale);
+        this.sprite.anchor.set(params.anchor || 0.5);
     }
     run() {
         switch (this.moveType) {
@@ -79,6 +76,9 @@ class EnemyBullet extends BaseObject {
             case 15:
                 this.twistDelay();
                 break;
+            case 16:
+                this.moonBeam();
+                break;
             default:
                 break;
         }
@@ -91,6 +91,13 @@ class EnemyBullet extends BaseObject {
             this.remove();
         };
     }
+    draw() {
+        this.sprite.x = this.x;
+        this.sprite.y = this.y;
+        this.sprite.rotation = this.toRadian(this.turn);
+
+        // BaseObject.prototype.draw.apply(this, arguments);
+    }
     remove() {
         this.scene.playerLayer.removeChild(this.sprite);
         this.scene.enemyBulletManager.objects.delete(this.id);
@@ -100,6 +107,15 @@ class EnemyBullet extends BaseObject {
         if (this.outOfStage()) {
             this.remove();
         };
+    }
+    moonBeam() {
+        // if (this.frame_count > 100) {
+        //     if (this.index % 2 == 0) {
+        //         this.turn--;
+        //     } else {
+        //         this.turn++;
+        //     };
+        // }
     }
     triSpin() {
         if (this.frame_count < 50) {
@@ -409,12 +425,6 @@ class EnemyBullet extends BaseObject {
         if (this.speed < this.maxSpeed) {
             this.speed += this.a;
         }
-    }
-    draw() {
-        this.sprite.x = this.x;
-        this.sprite.y = this.y;
-        this.sprite.rotation = this.toRadian(this.angle - 90);
-        // BaseObject.prototype.draw.apply(this, arguments);
     }
     // 瞄准状态
     inAimed() {

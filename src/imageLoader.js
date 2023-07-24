@@ -18,6 +18,7 @@ export function imageLoader() {
         shock_wave: "./images/shockwave.png",
         enemy: './images/enemy.png',
         bullet: './images/bullet.png',
+        beam:"./images/beam.png"
     };
     PIXI.Assets.addBundle('images', images);
 };

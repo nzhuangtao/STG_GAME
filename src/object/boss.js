@@ -56,6 +56,9 @@ class Boss extends BaseObject {
         this.hpBar.drawRect(15, 15, this.scene.width - 30, this.hpBarHeight);
         this.scene.playerLayer.addChild(this.hpBar);
     }
+    changeMode(){
+        console.log("此函数需要重写")
+    }
     update() {
         if (!this.isExist)
             return 0;
@@ -81,7 +84,7 @@ class Boss extends BaseObject {
             this.cardEffect();
             this.state = this.STATE_WAIT;
         };
-
+        
     }
     draw() {
         if (!this.isExist)
@@ -137,19 +140,19 @@ class Boss extends BaseObject {
             this.scene.stage.addChild(this.talkPreview);
             // 画对话框
             this.talkBar = new PIXI.Graphics();
-            this.talkBar.beginFill(0xffffff, 0.8);
-            this.talkBar.drawRect(0, this.scene.height - 240, this.scene.width, 240);
+            this.talkBar.beginFill(0x000000, 0.8);
+            this.talkBar.drawRect(30, this.scene.height - 240, this.scene.width - 70, 200);
             this.talkBar.endFill();
             this.scene.stage.addChild(this.talkBar);
             // 画人物名字
-            this.talkName = new PIXI.Text(talk.name);
-            this.talkName.x = 0;
-            this.talkName.y = this.scene.height - 240;
+            this.talkName = new PIXI.Text(talk.name+"：", { fill: 0xffffff, fontSize: 24 });
+            this.talkName.x = 60;
+            this.talkName.y = this.scene.height - 220;
             this.scene.stage.addChild(this.talkName);
             // 画对话
-            this.talkMessage = new PIXI.Text(talk.message);
-            this.talkMessage.x = 0;
-            this.talkMessage.y = this.scene.height - 240 + 40;
+            this.talkMessage = new PIXI.Text(talk.message, { fill: 0xffffff, fontSize: 16 });
+            this.talkMessage.x = 60;
+            this.talkMessage.y = this.scene.height - 180;
             this.scene.stage.addChild(this.talkMessage);
             this.talkAppear = true;
         };
@@ -159,7 +162,7 @@ class Boss extends BaseObject {
                 return 0;
             let texture = getImageByName(talk.image_stand);
             this.talkPreview.texture = texture;
-            this.talkName.text = talk.name;
+            this.talkName.text = talk.name+"：";
             this.talkMessage.text = talk.message;
             this.lastTalkIndex = this.talkIndex;
         };
@@ -255,7 +258,7 @@ class Boss extends BaseObject {
         let player = this.scene.player;
 
         if (
-            this.state == this.STATE_TALK||
+            this.state == this.STATE_TALK ||
             this.state == this.STATE_WAIT ||
             this.state == this.STATE_DIE) {
             return 0;

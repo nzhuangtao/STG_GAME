@@ -5,11 +5,13 @@ class BaseScene{
         this.frame_count = 0;
     }
     init(){
-        
+        console.error("请重写此函数");
     }
     update(){
         this.frame_count ++;
     }
-    draw(){}
+    draw(){
+        console.error("请重写此函数");
+    }
 }
 export default BaseScene;
