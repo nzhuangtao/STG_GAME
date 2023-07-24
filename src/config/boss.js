@@ -1,4 +1,3 @@
-
 const BOSS_CONFIG = {
     1: {
         name: '露米娅',
@@ -48,38 +47,15 @@ const BOSS_CONFIG = {
                 height: 128,
             }
         },
-        startTalk: [
+        cards: [
             {
-                name: "露米娅",
-                image: "rumia_stand",
-                message: "你是谁?"
+                name: "月符 月亮光",
             },
             {
-                name: "灵梦",
-                image: 'reimu_stand',
-                message: '看来你就是罪魁祸首',
+                name: "夜符 夜雀"
             },
             {
-                name: '露米娅',
-                image: "rumia_stand",
-                message: "能让我吃了你吗"
-            },
-            {
-                name: "灵梦",
-                image: "reimu_stand",
-                message: "看招"
-            }
-        ],
-        endTalk: [
-            {
-                name: "露米娅",
-                image: "rumia_stand",
-                message: "好饿啊"
-            },
-            {
-                name: "灵梦",
-                image: "reimu_stand",
-                message: "好险好险"
+                name: "暗符 境界线"
             }
         ]
     },
@@ -131,11 +107,16 @@ const BOSS_CONFIG = {
                 height: 128,
             }
         },
-        startTalk: [
-
-        ],
-        endTalk: [
-
+        cards: [
+            {
+                name: "时效 月岩笠的诅咒",
+            },
+            {
+                name: "不死 火鸟 -凤翼天翔"
+            },
+            {
+                name: "蓬莱人形"
+            }
         ]
     }
 }

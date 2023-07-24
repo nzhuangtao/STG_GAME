@@ -24,6 +24,10 @@ class Mokou extends Boss {
         this.x = this.scene.width / 2;
         this.y = this.spriteHeight;
         this.speed = 200;
+        this.cardIndex = -1;
+        this.cardList = this.config.cards;
+        this.hpNum = this.cardList.length;
+        
         Boss.prototype.init.apply(this, arguments);
     }
     changeMode(modeName, num = 1) {

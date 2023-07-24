@@ -1,6 +1,6 @@
 import BaseObject from "./object";
 import * as PIXI from 'pixi.js';
-
+import PLAYER_CONFIG from "../config/player";
 class Player extends BaseObject {
     TALK_STATE = 1;
     DIE_STATE = 2;
@@ -13,7 +13,7 @@ class Player extends BaseObject {
         this.spriteWidth = 32;
         this.spriteHeight = 48;
         this.bulletType = 1;
-        this.image = 'player';
+        this.image = '';
         this.speed = 200;
         this.state = 0;
         this.alpha = 1;
@@ -27,7 +27,12 @@ class Player extends BaseObject {
          * 3判定点
          */
     }
-    init() {
+    init(playerIndex) {
+        let config = PLAYER_CONFIG[playerIndex];
+        this.image = config.image;
+        this.image_stand = config.image_stand;
+        this.image_1 = config.image_1;
+        this.bullet = config.bullet;
         this.state = this.ACTIVE_STATE;
         this.x = this.scene.width / 2;
         this.y = this.scene.height - this.spriteHeight;
@@ -44,6 +49,7 @@ class Player extends BaseObject {
         if (this.game.input.iskeyDown(this.game.input.BUTTON_Z)) {
             if (this.state == this.ACTIVE_STATE) {
                 this.shot();
+                this.game.playSound("shot");
             };
             if (this.state == this.TALK_STATE) {
                 if (this.frame_count % 5 == 0) {
@@ -97,8 +103,6 @@ class Player extends BaseObject {
     }
     die() {
         this.state = this.DIE_STATE;
-
-        // 死啦你害的啦
     }
     draw() {
         if (this.frame_count % 5 == 0) {
@@ -107,9 +111,11 @@ class Player extends BaseObject {
                 this.indexX = 0;
             };
         };
+
         this.sprite.x = this.x;
         this.sprite.y = this.y;
         this.sprite.alpha = this.alpha;
+
         BaseObject.prototype.draw.apply(this, arguments);
     }
     checkCollisionWithEnemy() {
@@ -121,13 +127,7 @@ class Player extends BaseObject {
         });
     }
     boom() {
-        // 
-        if (this.hp >= 5) {
-            this.hp--;
-            this.reset();
-        } else {
-            this.die();
-        };
+
     }
     reset() {
         this.x = this.scene.width / 2;

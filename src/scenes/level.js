@@ -23,15 +23,17 @@ class Level extends BaseScene {
     BOSS_RUMIA = 1;
     BOSS_MOKOU = 2;
     BOSS_MARISA = 3;
+
     BOSS_NUM = 2;
     FPS = 1 / 60;
+
     constructor(game, width, height) {
         super(game);
         this.levelIndex = 1;
         this.score = 0;
         this.width = width - this.SIDE_WIDTH;
         this.height = height;
-        this.state = this.SHOT_STATE;
+        this.state = 0;
         this.player = new Player(1, this);
         this.boss = null;
         this.enemyIndex = 0;
@@ -54,12 +56,19 @@ class Level extends BaseScene {
         this.nextBtn = null;
         this.exitBtn = null;
         this.selectIndex = 0;
-        this.isShowResult = false;
+        this.isShowPanel = false;
+        this.side = null;
+        this.avatar = null;
+        this.scoreSprite = null;
+        this.bombSprite = null;
+        this.hpSprite = null;
+        this.playerIndex = 0;
     }
-    init() {
+    init(playerIndex) {
         this.state = this.ATIVE_STATE;
         this.score = 0;
-        this.player.init();
+        this.playerIndex = playerIndex;
+        this.player.init(playerIndex);
         this.enemyList = enemyList;
 
         // 全部敌人设置为没有生成状态
@@ -71,14 +80,12 @@ class Level extends BaseScene {
         this.initBoss();
         // 初始化背景
         this.initBackground();
-        // 初始化显示结果面板
+        // 初始化侧边栏
+        this.initSide();
         this.initResultPanel();
+        this.game.playBgm("bgm");
     }
     nextLevel() {
-        this.levelIndex++;
-        if (this.levelIndex > 2) {
-            this.levelIndex = 2;
-        };
         this.clearLevel();
         this.loadLevel();
     }
@@ -88,7 +95,7 @@ class Level extends BaseScene {
         this.playerLayer = new PIXI.Container();
         this.stage.addChild(this.effectLayer);
         this.stage.addChild(this.playerLayer);
-        this.init();
+        this.init(this.playerIndex);
     }
     clearLevel() {
         this.playerLayer.destroy();
@@ -123,8 +130,8 @@ class Level extends BaseScene {
         }
     }
     initBackground() {
-
-        let texture = getImageByName("stage1_bg");
+        let bg = this.levelIndex > 1 ? 'bg2' : "bg1";
+        let texture = getImageByName(bg);
         // 创建背景
         this.frontBackground = new PIXI.Sprite(texture);
         this.frontBackground.x = 0;
@@ -140,6 +147,50 @@ class Level extends BaseScene {
 
         this.effectLayer.addChild(this.frontBackground);
         this.effectLayer.addChild(this.backBackground);
+    }
+    initSide() {
+        this.side = new PIXI.Graphics();
+        this.side.beginFill(0x000, 1);
+        this.side.drawRect(this.width, 0, this.SIDE_WIDTH, this.height);
+        this.side.endFill();
+        // 角色头像
+        let avatar = this.player.image_1;
+        this.avatar = PIXI.Sprite.from(avatar);
+        this.avatar.x = this.game.width - this.avatar.width;
+        this.avatar.y = 100;
+        this.avatar.anchor.set(0.5);
+        this.side.addChild(this.avatar);
+        // 主角生命值
+        let title = new PIXI.Text("生命", { fill: 0xffffff, fontSize: 14 });
+        title.x = this.width + 10;
+        title.y = 100 + this.avatar.height;
+        this.side.addChild(title);
+        this.hpSprite = new PIXI.Text(this.player.hp, { fill: 0xffffff, fontSize: 14 })
+        this.hpSprite.x = this.width + 50;
+        this.hpSprite.y = 100 + this.avatar.height;
+        this.side.addChild(this.hpSprite);
+        // 炸弹
+        let bombTitle = new PIXI.Text('符卡', { fill: 0xffffff, fontSize: 14 });
+        bombTitle.x = this.width + 10;
+        bombTitle.y = 100 + this.avatar.height + 40;
+        this.side.addChild(bombTitle);
+
+        this.bombSprite = new PIXI.Text(0, { fill: 0xffffff, fontSize: 14 })
+        this.bombSprite.x = this.width + 50;
+        this.bombSprite.y = 100 + this.avatar.height + 40;
+        this.side.addChild(this.bombSprite);
+        // 分数
+        let scoreTitle = new PIXI.Text('分数', { fill: 0xffffff, fontSize: 14 });
+        scoreTitle.x = this.width + 10;
+        scoreTitle.y = 100 + this.avatar.height + 80;
+        this.scoreSprite = new PIXI.Text(this.score, { fill: 0xffffff, fontSize: 14 })
+        this.scoreSprite.x = this.width + 50;
+        this.scoreSprite.y = 100 + this.avatar.height + 80;
+        this.side.addChild(scoreTitle);
+        this.side.addChild(this.scoreSprite);
+
+        this.stage.addChild(this.side);
+
     }
     initResultPanel() {
         this.resultPanel = new PIXI.Graphics();
@@ -179,38 +230,35 @@ class Level extends BaseScene {
     update() {
         BaseScene.prototype.update.apply(this, arguments);
         this.drawBackground();
-        if (this.state == this.WIN_STATE && !this.isShowResult) {
+        if (this.state == this.WIN_STATE && !this.isShowPanel) {
             this.showGameWin();
-            this.isShowResult = true;
+            this.isShowPanel = true;
         };
         if (this.state == this.WIN_STATE) {
             this.handleGameWin();
             this.updatePanel();
-            return 0;
         };
 
-        if (this.state == this.PAUSE_STATE && !this.isShowResult) {
+        if (this.state == this.PAUSE_STATE && !this.isShowPanel) {
             this.showPause();
+            this.isShowPanel = true;
         };
         if (this.state == this.PAUSE_STATE) {
             this.handleGamePause();
             this.updatePanel();
-            return 0;
         };
 
-        if (this.state == this.GAMEOVER_STATE && !this.isShowResult) {
+        if (this.state == this.GAMEOVER_STATE) {
             this.showGameOver();
         };
         if (this.state == this.GAMEOVER_STATE) {
             this.handleGameover();
-            this.updatePanel();
-            return 0;
         };
 
         if (this.state == this.ATIVE_STATE) {
             this.handleGameRun();
+            this.updateSide();
         };
-
     }
     draw() {
         if (this.state == this.PAUSE_STATE)
@@ -261,11 +309,12 @@ class Level extends BaseScene {
         //         this.frame_count = 0;
         //     }
         // };
-        //console.log("敌人数目:" + this.enemyManager.objects.size);
-        //console.log("子弹数目:" + this.enemyBulletManager.objects.size);
+        // console.log("特效数目"+this.effectManager.objects.size);
+        // console.log("敌人数目:" + this.enemyManager.objects.size);
+        // console.log("子弹数目:" + this.enemyBulletManager.objects.size);
         //this.player.checkCollisionWithEnemy();
         this.playerBulletManager.checkCollisonWithEnemy();
-        this.enemyBulletManager.checkCollisonWithPlayer();
+        //this.enemyBulletManager.checkCollisonWithPlayer();
         this.boss.checkCollisionWithPlayer();
     }
     handleGameWin() {
@@ -349,6 +398,10 @@ class Level extends BaseScene {
             };
         };
     }
+    updateSide() {
+        this.hpSprite.text = this.player.hp;
+        this.scoreSprite.text = this.score;
+    }
     closePanel() {
         this.playerLayer.removeChild(this.resultPanel);
     }
@@ -362,7 +415,6 @@ class Level extends BaseScene {
         this.playerLayer.addChild(this.resultPanel);
     }
     showGameWin() {
-        this.isShowResult = true;
         if (this.levelIndex < this.BOSS_NUM) {
             this.nextBtn.text = "下一关";
             this.exitBtn.x = this.resultPanel.width / 2 - this.exitBtn.width / 2;
@@ -381,10 +433,10 @@ class Level extends BaseScene {
         this.resultPanel.addChild(this.nextBtn);
         this.playerLayer.addChild(this.resultPanel);
     }
-    getGameWinEvent() {
-        this.state = this.GAMEWIN_STATE;
+    notifyGameWin() {
+        this.state = this.WIN_STATE;
     }
-    getGameOverEvent() {
+    notifyGameover() {
         this.state = this.GAMEOVER_STATE;
     }
     updatePanel() {

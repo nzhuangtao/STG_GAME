@@ -137,6 +137,11 @@ class Marisa extends Boss {
             this.scene.enemyBulletManager.create(params);
         }
     }
+<<<<<<< HEAD
+    notifyShot(type){
+        this.mode = 0;
+        this.frame_count = 50;
+=======
     twistSpawner() {
         for (let i = 0; i < 12; i++) {
             let params = {
@@ -194,6 +199,7 @@ class Marisa extends Boss {
             }
             this.scene.enemyBulletManager.create(params);
         }
+>>>>>>> ab820022a331baa2c8d7a1388c54c23789026fda
     }
 }
 export default Marisa;

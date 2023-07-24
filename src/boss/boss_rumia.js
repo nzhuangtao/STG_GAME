@@ -1,13 +1,18 @@
 import Boss from "../object/boss";
 import BOSS_CONFIG from "../config/boss";
-import getBulletType from "../data/bullet";
-import { getImageByName } from "../imageLoader";
-import * as PIXI from 'pixi.js'
+import TALK_CONFIG from "../config/talk";
+
 class Rumia extends Boss {
     MODE_NORMAL = 'normal';
     MODE_LEFT = 'left';
     MODE_RIGHT = 'right';
     MODE_ATTACK = 'attack';
+
+    STAET_ATTACK1 = 'attack1';
+    STATE_ATTACK2 = 'attack2';
+    STATE_ATTACK3 = 'attack3';
+    STATE_ATTACK4 = 'attack4';
+
     constructor(id, scene) {
         super(id, scene);
         this.config = null;
@@ -19,11 +24,19 @@ class Rumia extends Boss {
     }
     init() {
         this.config = BOSS_CONFIG[this.id];
-
+        let talkConfig = TALK_CONFIG[this.scene.playerIndex];
+        this.startTalk = talkConfig.startTalk;
+        this.endTalk = talkConfig.endTalk;
+        this.talkList = this.startTalk;
+        this.spriteWidth = 128;
+        this.spriteHeight = 128;
+        
         this.changeMode(this.MODE_NORMAL);
-        this.x = this.scene.width / 2;
-        this.y = this.spriteHeight;
-        this.speed = 200;
+
+        this.cardIndex = -1;
+        this.cardList = this.config.cards;
+        this.hpNum = this.cardList.length;
+
         Boss.prototype.init.apply(this, arguments);
     }
     changeMode(modeName, num = 1) {
@@ -47,6 +60,39 @@ class Rumia extends Boss {
     }
     update() {
         Boss.prototype.update.apply(this, arguments);
+
+        if (this.state == this.STATE_ATIVE) {
+            if (this.cardIndex == -1) {
+                this.state = this.STAET_ATTACK1;
+            } else if (this.cardIndex == 0) {
+                this.state = this.STATE_ATTACK2;
+            } else if (this.cardIndex == 1) {
+                this.state = this.STATE_ATTACK3;
+            } else if (this.cardIndex == 2) {
+                this.state = this.STATE_ATTACK4;
+            }
+        };
+
+        if (this.state == this.STAET_ATTACK1) {
+            if (this.frame_count % 10 == 0) {
+                this.shotCircleBullet();
+            }
+        };
+        if (this.state == this.STATE_ATTACK2) {
+            if (this.frame_count % 10 == 0) {
+                this.shotRingBullet();
+            }
+        };
+        if (this.state == this.STATE_ATTACK3) {
+            if (this.frame_count % 10 == 0) {
+                this.tripleorbs();
+            }
+        }
+        if (this.state == this.STATE_ATTACK4) {
+            if (this.frame_count % 10 == 0) {
+                this.tripleorbs();
+            }
+        }
     }
     draw() {
         if (this.mode == this.MODE_NORMAL) {
@@ -66,46 +112,15 @@ class Rumia extends Boss {
         }
         Boss.prototype.draw.apply(this, arguments);
     }
-    showCircleRed() {
-        for (let i = 0; i < 8; i++) {
-            let params = {
-                x: this.x,
-                y: this.y,
-                moveType: 2,
-                speed: 240,
-                angle: 180 - i * 22.5,
-                indexX: 13,
-                indexY: 3,
-                width: 16,
-                height: 16,
-            };
-            this.scene.enemyBulletManager.create(params);
-        }
-    }
-    showCircleBlue() {
-        for (let i = 0; i < 12; i++) {
-            let params = {
-                x: this.x,
-                y: this.y,
-                moveType: 2,
-                speed: 240,
-                angle: i * 15,
-                indexX: 12,
-                indexY: 3,
-                width: 16,
-                height: 16,
-            };
-            this.scene.enemyBulletManager.create(params);
-        }
-    }
     shotCircleBullet() {
+
         for (let i = 0; i < 12; i++) {
             let params = {
                 x: this.x,
                 y: this.y,
                 moveType: 2,
                 speed: 240,
-                angle: i * 36,
+                angle: i * 36 + 12,
                 indexX: 13,
                 indexY: 4,
                 width: 16,
@@ -113,22 +128,6 @@ class Rumia extends Boss {
             };
             this.scene.enemyBulletManager.create(params);
         }
-    }
-    showRadomRingBullet() {
-        // for (let i = 0; i < 8; i++) {
-        //     let params = {
-        //         x: this.x+Math.random()*100-15,
-        //         y: this.y+Math.random()*100-15,
-        //         moveType: 2,
-        //         speed: 240,
-        //         angle: i * 45 + this.frame_count,
-        //         indexX: 7,
-        //         indexY: 3,
-        //         width: 16,
-        //         height: 16,
-        //     };
-        //     this.scene.enemyBulletManager.create(params);
-        // }
     }
     shotRingBullet() {
         for (let i = 0; i < 8; i++) {
@@ -142,23 +141,6 @@ class Rumia extends Boss {
                 indexY: 3,
                 width: 16,
                 height: 16,
-            };
-            this.scene.enemyBulletManager.create(params);
-        }
-    }
-    shotScaleBullet() {
-        for (let i = 0; i < 4; i++) {
-            let params = {
-                x: this.x,
-                y: this.y,
-                moveType: 2,
-                speed: 240,
-                angle: 45 + i * 45,
-                indexX: 13,
-                indexY: 2,
-                width: 16,
-                height: 16,
-                a: 2,
             };
             this.scene.enemyBulletManager.create(params);
         }
