@@ -52,7 +52,7 @@ class Marisa extends Boss {
     }
     notifyShot(type){
         this.mode = 0;
-        this.frame_count = 0;
+        this.frame_count = 50;
     }
 }
 export default Marisa;
