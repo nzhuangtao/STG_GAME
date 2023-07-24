@@ -1,15 +1,20 @@
 
 import EnemyBullet from "../object/enemyBullet";
 import BaseManager from "./base";
-
+import getBulletType from "../data/bullet";
 class EnemyBulletManager extends BaseManager {
     constructor(scene) {
         super(scene)
-        this.bulletIndex = 0;  
+        this.bulletIndex = 0;
+        this.player = this.scene.player;
     }
     create(params) {
         let bullet = new EnemyBullet(this.bulletIndex, this.scene);
-        bullet.init(params);
+        let bulletType = getBulletType(params.type);
+        bullet.init({
+            ...bulletType,
+            ...params,
+        });
         this.objects.set(this.bulletIndex, bullet);
         this.bulletIndex++;
     }
@@ -29,19 +34,17 @@ class EnemyBulletManager extends BaseManager {
     checkCollisonWithPlayer() {
         if (this.objects.size <= 0)
             return 0;
+        if (this.player.state == this.player.DIE_STATE)
+            return 0;
         this.objects.forEach((bullet) => {
-            // this.scene.enemyManager.objects.forEach((enemy) => {
-            //     if(bullet.checkCollision(enemy)){
-            //         // 删除子弹
-            //         bullet.remove();
-            //         this.objects.delete(bullet.id);
-            //         // 删除敌人
-            //         enemy.remove();
-            //         this.scene.enemyManager.objects.delete(enemy.id);
-            //     };
-            // });
+
+            if (bullet.checkCollision(this.player)) {
+                // 主角死亡
+                this.player.die();
+                // 删除子弹
+                bullet.remove();
+            };
         });
     }
-
 }
 export default EnemyBulletManager;

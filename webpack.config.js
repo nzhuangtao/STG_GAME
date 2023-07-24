@@ -27,6 +27,8 @@ module.exports = {
         new CopyPlugin({
             patterns: [
                 { from: "public/images", to: "images" },
+                { from: "public/BGM", to: "BGM" },
+                {from:"public/SE",to:"SE"}
             ],
         }),
     ],

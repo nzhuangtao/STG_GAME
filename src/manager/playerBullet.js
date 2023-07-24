@@ -1,7 +1,6 @@
 
 import PlayerBullet from "../object/playerBullet";
 import BaseManager from "./base";
-
 class PlayerBulletManager extends BaseManager {
     constructor(scene) {
         super(scene)

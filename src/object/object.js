@@ -1,7 +1,6 @@
 import * as PIXI from 'pixi.js';
 import { getImageByName } from '../imageLoader';
 class BaseObject {
-    FPS = 1 / 60;
     side = 200;
     constructor(id, scene) {
         this.id = id;
@@ -17,8 +16,9 @@ class BaseObject {
         this.spriteWidth = 0;
         this.spriteHeight = 0;
         this.sprite = null;
-        this.angle = 0;
+        this.angle = 0;// 精灵的运动角度，角色一般为270，敌人为90
         this.speed = 0;
+        this.turn = 0; // 精灵的朝向
     }
     init() {
         let texture = getImageByName(this.image);
@@ -30,6 +30,7 @@ class BaseObject {
         this.sprite.x = this.x;
         this.sprite.y = this.y;
         this.sprite.anchor.set(0.5);
+        this.sprite.rotation = this.toRadian(this.turn);
         this.scene.playerLayer.addChild(this.sprite);
     }
     update() {

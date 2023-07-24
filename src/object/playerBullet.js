@@ -20,12 +20,14 @@ class PlayerBullet extends BaseObject {
     update() {
         BaseObject.prototype.update.apply(this, arguments);
         this.y -= this.speed;
-    }
-    outOfStage() {
-        if (this.y < 0) {
-            return true;
+        if(this.outOfStage()){
+            this.remove();
         };
-        return false;
+    }
+    remove(){
+        this.scene.playerLayer.removeChild(this.sprite);
+        this.scene.playerBulletManager.objects.delete(this.id);
+        delete this;
     }
     draw() {
         this.sprite.x = this.x;
