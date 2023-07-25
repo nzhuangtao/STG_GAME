@@ -35,6 +35,15 @@ class PlayerBulletManager extends BaseManager {
                     // 删除子弹
                     bullet.remove();
                     this.objects.delete(bullet.id);
+                    let effect = this.scene.effectManager.create();
+                    // console.log(this.scene.effectManager)
+                    effect.initEnemyDestory(
+                        {
+                            x:enemy.x,
+                            y:enemy.y,
+                        }
+                    );
+                    this.scene.addScore(enemy.score);
                     // 删除敌人
                     enemy.remove();
                     this.scene.enemyManager.objects.delete(enemy.id);

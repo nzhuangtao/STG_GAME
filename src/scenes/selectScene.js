@@ -18,6 +18,8 @@ class SelectScene extends BaseScene {
     }
     update() {
         this.frame_count++;
+        if (this.frame_count < 20)
+            return 0;
         if (this.frame_count % 8 == 0) {
             if (this.game.input.iskeyDown(this.game.input.BUTTON_Z)) {
                 this.game.stage.removeChild(this.layer);

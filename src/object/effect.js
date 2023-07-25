@@ -5,12 +5,10 @@ import { getImageByName } from "../imageLoader";
 class Effect extends BaseObject {
     constructor(id, scene) {
         super(id, scene);
-        this.cardNameSprite = null;
         this.state = 0;
         this.type = 0;
         this.scale = 0;
         this.rotation = 0;
-        this.isSpellCard = false;
     }
     update() {
         if (this.state != 0)
@@ -18,34 +16,48 @@ class Effect extends BaseObject {
         BaseObject.prototype.update.apply(this, arguments);
         switch (this.type) {
             case 1:
-                this.spellCharge();
+                this.enemyDestoryEffect();
                 break;
             case 2:
-                this.spellCard();
-                break
+                this.chargeEffect();
+                break;
             case 3:
-                this.bossDestory();
+                this.spellEffect();
                 break;
             default:
                 break;
         }
     }
+    draw() {
+        this.sprite.x = this.x;
+        this.sprite.y = this.y;
+        this.sprite.scale.set(this.scale);
+        this.sprite.rotation = this.rotation;
+        this.sprite.alpha = this.alpha;
+    }
     remove() {
-        this.removeCardName();
         this.scene.effectLayer.removeChild(this.sprite);
         this.scene.effectManager.objects.delete(this.id);
         delete this;
     }
-    draw() {
+    initEnemyDestory(params) {
+        this.x = params.x;
+        this.y = params.y;
+        this.type = 1;
+        let texture = getImageByName("shock_wave");
+        this.sprite = new Sprite(texture);
         this.sprite.x = this.x;
         this.sprite.y = this.y;
-        this.sprite.rotation = this.rotation;
+        this.scale = 0;
+        this.sprite.anchor.set(0.5)
+        this.alpha = 1;
+        this.scene.effectLayer.addChild(this.sprite);
     }
-    initSpellCharge(params) {
+    initCharge(params) {
         let texture = getImageByName('sysimg_01')
         let rectangle = new Rectangle(0, 64, 128, 128);
         texture.frame = rectangle;
-        this.type = 1;
+        this.type = 2;
         this.sprite = new Sprite(texture);
         this.x = params.x;
         this.y = params.y;
@@ -56,23 +68,7 @@ class Effect extends BaseObject {
         this.sprite.anchor.set(0.5)
         this.scene.effectLayer.addChild(this.sprite);
     }
-    spellCharge() {
-        if (this.frame_count < 50) {
-            this.scale -= 0.08;
-            this.sprite.scale.set(this.scale, this.scale);
-        };
-        if (this.frame_count > 100 && !this.isSpellCard) {
-            this.scene.boss.notifyActive();
-            this.isSpellCard = true;
-        };
-        this.x = this.scene.boss.x;
-        this.y = this.scene.boss.y;
-        this.rotation += 0.1;
-        if (this.rotation >= 100) {
-            this.rotation = 0;
-        };
-    }
-    initSpellCard(params) {
+    initSpell(params) {
         this.params = params;
         this.x = params.x;
         this.y = params.y + 100;
@@ -90,7 +86,23 @@ class Effect extends BaseObject {
         this.cardNameSprite.y = this.sprite.height;
         this.scene.effectLayer.addChild(this.cardNameSprite);
     }
-    spellCard() {
+    chargeEffect() {
+        if (this.frame_count < 50) {
+            this.scale -= 0.08;
+            this.sprite.scale.set(this.scale, this.scale);
+        };
+        if (this.frame_count > 100 && !this.isSpellCard) {
+            this.scene.boss.notifyActive();
+            this.isSpellCard = true;
+        };
+        this.x = this.scene.boss.x;
+        this.y = this.scene.boss.y;
+        this.rotation += 0.1;
+        if (this.rotation >= 100) {
+            this.rotation = 0;
+        };
+    }
+    spellEffect() {
         if (this.frame_count < 70) {
             this.x -= 8;
             this.cardNameSprite.y -= 8;
@@ -103,44 +115,18 @@ class Effect extends BaseObject {
             };
         };
     }
-    initBossDestory(params) {
-        this.params = params;
-        this.x = params.x;
-        this.y = params.y;
-        this.type = params.type;
-        let texture = getImageByName("shock_wave");
-        this.sprite = new Sprite(texture);
-        this.sprite.x = this.x;
-        this.sprite.y = this.y;
-        this.scale = 0;
-        this.sprite.anchor.set(0.5)
-        this.sprite.alpha = params.alpha || 1;
-        this.scene.effectLayer.addChild(this.sprite);
-    }
-    bossDestory() {
-        if (this.frame_count < 200) {
-            this.scale++;
-            this.sprite.scale.set(this.scale);
+    enemyDestoryEffect() {
+        if (this.frame_count < 10) {
+            this.scale += 0.2;
+            this.alpha -= 0.1;
         } else {
             this.remove();
-            this.scene.boss.notifyDie();
         };
     }
     remove() {
-        this.removeCardName();
         this.scene.effectLayer.removeChild(this.sprite)
         this.scene.effectManager.objects.delete(this.id);
         delete this;
-    }
-    drawCardName() {
-
-
-    }
-    removeCardName() {
-        if (this.cardNameSprite) {
-            this.scene.effectLayer.removeChild(this.cardNameSprite);
-            this.cardNameSprite = null;
-        }
     }
 }
 export default Effect;

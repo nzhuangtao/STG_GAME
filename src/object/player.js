@@ -49,7 +49,6 @@ class Player extends BaseObject {
         if (this.game.input.iskeyDown(this.game.input.BUTTON_Z)) {
             if (this.state == this.ACTIVE_STATE) {
                 this.shot();
-                this.game.playSound("shot");
             };
             if (this.state == this.TALK_STATE) {
                 if (this.frame_count % 5 == 0) {
@@ -119,12 +118,12 @@ class Player extends BaseObject {
         BaseObject.prototype.draw.apply(this, arguments);
     }
     checkCollisionWithEnemy() {
-        let enemies = this.scene.enemyManager.objects;
-        enemies.forEach((enemy) => {
-            if (enemy.checkCollision(this)) {
-                this.boom();
-            };
-        });
+        // let enemies = this.scene.enemyManager.objects;
+        // enemies.forEach((enemy) => {
+        //     if (enemy.checkCollision(this)) {
+        //         this.boom();
+        //     };
+        // });
     }
     boom() {
 

@@ -8,9 +8,11 @@ class EnemyBullet extends BaseObject {
         this.speed = 10;
         this.threeStageState = 0;
         this.starSpeed = 0;
+        this.circleSpeed = 0;
     }
     init(params) {
         this.params = params;
+        this.index = params.index;
         this.scale = params.scale || 1;
         this.moveType = params.moveType || 1;
         this.x = params.x;
@@ -18,16 +20,18 @@ class EnemyBullet extends BaseObject {
         this.angle = params.angle;
         this.indexX = params.indexX;
         this.indexY = params.indexY;
+        this.a = params.a;
         this.spriteWidth = params.width;
         this.spriteHeight = params.height;
-        this.turn = this.angle - 90;
+        //this.turn = this.angle - 90;
         this.speed = params.speed;
         this.aimed = false;
         this.image = params.image || 'bullet';
-
+        this.turn = params.turn || 0;
+        this.scale = params.scale || 1;
         BaseObject.prototype.init.apply(this, arguments);
-        this.sprite.scale.set(this.scale);
-        this.sprite.anchor.set(params.anchor || 0.5);
+        //this.sprite.scale.set(this.scale);
+        //this.sprite.anchor.set(params.anchor || 0.5);
     }
     run() {
         switch (this.moveType) {
@@ -79,6 +83,9 @@ class EnemyBullet extends BaseObject {
             case 16:
                 this.moonBeam();
                 break;
+            case 17:
+                this.darkSpell();
+                break;
             default:
                 break;
         }
@@ -94,14 +101,16 @@ class EnemyBullet extends BaseObject {
     draw() {
         this.sprite.x = this.x;
         this.sprite.y = this.y;
-        this.sprite.rotation = this.toRadian(this.turn);
-
-        // BaseObject.prototype.draw.apply(this, arguments);
+        //this.sprite.rotation = this.toRadian(this.turn);
     }
     remove() {
         this.scene.playerLayer.removeChild(this.sprite);
         this.scene.enemyBulletManager.objects.delete(this.id);
         delete this;
+    }
+    linearMove() {
+        this.y += this.speed * this.FPS;
+        this.speed += this.a;
     }
     removeOutOfStage() {
         if (this.outOfStage()) {
@@ -412,12 +421,6 @@ class EnemyBullet extends BaseObject {
         this.x += this.speed * (1 / 60) * Math.cos(this.toRadian(this.angle));
         this.y += this.speed * (1 / 60) * Math.sin(this.toRadian(this.angle));
     }
-    linearMove() {
-        this.y += this.speed * (1 / 60);
-        if (this.speed <= this.maxSpeed) {
-            this.speed += this.a;
-        };
-    }
     // 散射
     scattering() {
         this.x += this.speed * this.FPS * Math.cos(this.toRadian(this.angle));
@@ -532,6 +535,39 @@ class EnemyBullet extends BaseObject {
             };
             this.remove();
         }
+        this.x += this.speed * this.FPS * Math.cos(this.toRadian(this.angle));
+        this.y += this.speed * this.FPS * Math.sin(this.toRadian(this.angle));
+    }
+    darkSpell() {
+        if (
+            this.frame_count < 100 &&
+            this.speed > 0 &&
+            this.frame_count % 2 == 0) {
+            this.speed -= 5;
+        };
+        // if (this.frame_count > 200) {
+        //     if (this.index % 2 == 0) {
+        //         this.speed = 200;
+        //     } else {
+        //         this.speed = 210;
+        //     }
+        // };
+        if (this.speed == 0) {
+            if (!this.r) {
+                this.r = (this.y - this.scene.boss.y) / Math.sin(this.toRadian(this.angle));
+            };
+            if (this.frame_count % 2 == 0) {
+
+                if (this.index % 2 == 0) {
+                    this.angle++;
+                } else {
+                    this.angle--;
+                }
+            }
+            this.x = this.scene.boss.x + Math.cos(this.toRadian(this.angle)) * this.r;
+            this.y = this.scene.boss.y + Math.sin(this.toRadian(this.angle)) * this.r;
+            return 0;
+        };
         this.x += this.speed * this.FPS * Math.cos(this.toRadian(this.angle));
         this.y += this.speed * this.FPS * Math.sin(this.toRadian(this.angle));
     }

@@ -83,7 +83,7 @@ class Level extends BaseScene {
         // 初始化侧边栏
         this.initSide();
         this.initResultPanel();
-        this.game.playBgm("bgm");
+
     }
     nextLevel() {
         this.clearLevel();
@@ -268,7 +268,7 @@ class Level extends BaseScene {
         this.playerBulletManager.draw();
         this.enemyManager.draw();
         this.enemyBulletManager.draw();
-        this.boss.draw();
+        //this.boss.draw();
         this.effectManager.draw();
     }
     drawBackground() {
@@ -287,35 +287,35 @@ class Level extends BaseScene {
         this.playerBulletManager.update();
         this.enemyManager.update();
         this.enemyBulletManager.update();
-        if (!this.boss.isExist) {
-            this.boss.init();
-        } else {
-            this.boss.updateHp();
-            this.boss.update();
-        };
-        // 检查是否需要生成敌人
-        // if (this.enemyIndex < this.enemyList.length) {
-        //     for (let i = 0; i < enemyList.length; i++) {
-        //         let enemy = this.enemyList[i];
-        //         if (!enemy.isExist && enemy.count <= this.frame_count) {
-        //             // 标记为已生成
-        //             enemy.isExist = true;
-        //             this.enemyManager.create(enemy);
-        //             // 已生成敌人数目增加
-        //             this.enemyIndex++;
-        //         };
-        //     }
-        //     if (this.enemy_index == this.enemyList.length) {
-        //         this.frame_count = 0;
-        //     }
+        // if (!this.boss.isExist) {
+        //     this.boss.init();
+        // } else {
+        //     this.boss.updateHp();
+        //     this.boss.update();
         // };
+        // 检查是否需要生成敌人
+        if (this.enemyIndex < this.enemyList.length) {
+            for (let i = 0; i < enemyList.length; i++) {
+                let enemy = this.enemyList[i];
+                if (!enemy.isExist && enemy.count <= this.frame_count) {
+                    // 标记为已生成
+                    enemy.isExist = true;
+                    this.enemyManager.create(enemy);
+                    // 已生成敌人数目增加
+                    this.enemyIndex++;
+                };
+            };
+            if (this.enemy_index == this.enemyList.length) {
+                this.frame_count = 0;
+            };
+        };
         // console.log("特效数目"+this.effectManager.objects.size);
         // console.log("敌人数目:" + this.enemyManager.objects.size);
-        // console.log("子弹数目:" + this.enemyBulletManager.objects.size);
-        //this.player.checkCollisionWithEnemy();
+        //console.log("子弹数目:" + this.enemyBulletManager.objects.size);
+        this.player.checkCollisionWithEnemy();
         this.playerBulletManager.checkCollisonWithEnemy();
         //this.enemyBulletManager.checkCollisonWithPlayer();
-        this.boss.checkCollisionWithPlayer();
+        //this.boss.checkCollisionWithPlayer();
     }
     handleGameWin() {
 
@@ -449,6 +449,9 @@ class Level extends BaseScene {
                 this.nextBtn.alpha = 0.5;
             }
         };
+    }
+    addScore(score) {
+        this.score += score;
     }
 }
 export default Level;

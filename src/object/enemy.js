@@ -1,6 +1,7 @@
 import BaseObject from "./object";
 import { enemy_type } from "../data/enemy";
 import bullet_type from "../data/bullet";
+import getBulletType from "../data/bullet";
 class Enemy extends BaseObject {
     constructor(id, scene) {
         super(id, scene);
@@ -10,6 +11,7 @@ class Enemy extends BaseObject {
         this.speed = 100;
         this.moveType = 1; // 移动方式
         this.shotIndex = 0;
+        this.score = 100;
     }
     init(params) {
         this.params = params;
@@ -24,7 +26,7 @@ class Enemy extends BaseObject {
         this.x = params.x;
         this.y = params.y;
         this.angle = params.angle;
-        this.num = params.num; // 精灵图数目
+        this.num = params.num; 
         BaseObject.prototype.init.apply(this, arguments);
     }
     update() {
@@ -91,7 +93,7 @@ class Enemy extends BaseObject {
                 indexY: 4,
                 width: 16,
                 height: 16,
-                angle:165-(i+2)*15,
+                angle: 165 - (i + 2) * 15,
             };
             parmas = Object.assign(shotInfo, parmas);
             this.scene.enemyBulletManager.create(parmas);
@@ -109,7 +111,7 @@ class Enemy extends BaseObject {
                     speed: j * 10,
                     angle: i * step + j * 10,
                 };
-                parmas = Object.assign(parmas, bulletType);
+                //parmas = Object.assign(parmas, bulletType);
                 this.scene.enemyBulletManager.create(parmas);
             }
         }
@@ -126,73 +128,56 @@ class Enemy extends BaseObject {
                 indexY: 4,
                 width: 16,
                 height: 16,
-                moveType:3,
-            };  
+                moveType: 3,
+            };
             this.scene.enemyBulletManager.create(parmas);
         }
     }
     aimedPlayerBullet(bulletType, num) {
+        //      let bulletType = getBulletType(38);
+        // for (let i = 0; i < num; i++) {
+        //     let player = this.scene.player;
+        //     let ax = player.x - this.x;
+        //     let ay = player.y - this.y;
+        //     let angle = this.toAngle(Math.atan2(ay, ax));
+        //     let parmas = {
+        //         x: this.x,
+        //         y: this.y,
+        //         moveType: 2,
+        //         speed: 100,
+        //         angle,
+        //     };
 
-        for (let i = 0; i < num; i++) {
-            let player = this.scene.player;
-            let ax = player.x - this.x;
-            let ay = player.y - this.y;
-            let angle = this.toAngle(Math.atan2(ay, ax));
-            let parmas = {
-                x: this.x,
-                y: this.y,
-                moveType: 2,
-                speed: 100,
-                angle,
-            };
-            parmas = Object.assign(parmas, bulletType);
-            this.scene.enemyBulletManager.create(parmas);
-        }
+        //     this.scene.enemyBulletManager.create(parmas);
+        // }
     }
-    shotLinearBullet(shotInfo) {
-        // let bulletType = bullet_type[shotInfo.type];
+    shotLinearBullet() {
+        let bulletType = getBulletType(38);
         let parmas = {
             x: this.x,
             y: this.y,
-            indexX: 3,
-            indexY: 3,
-            width: 16,
-            height: 16,
+            ...bulletType,
+            speed: 240,
+            angle: 90,
+            moveType: 1,
+            a: 2,
         };
-        parmas = Object.assign(parmas, shotInfo);
         this.scene.enemyBulletManager.create(parmas);
     }
     linearMotion() {
         this.y += this.speed * (1 / 60) * Math.sin();
     }
-    moveLeft() {
-        this.angle = 90;
-    }
-    moveTop() {
-        this.angle = 90 + 180;
-    }
-    moveBottom() {
-        this.angle = 90;
-    }
-    moveRight() {
-        this.angle = 90;
-    }
-    moveLeftBottom() {
-        this.angle = 90 - 45;
-    }
-    moveRightBottom() {
-        this.angle = 90 + 45;
-    }
     actionWayOne() {
         if (this.frame_count < 100) {
             // 发射弹幕
+            
         }
         else if (this.frame_count < 200) {
             this.speed -= 1;
         }
         else {
             this.speed += 1;
-            this.moveTop();
+            this.angle = 270;
         };
     }
     actionWayTwo() {

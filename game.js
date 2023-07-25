@@ -26,7 +26,7 @@ class Game {
         this.addScene(this.OPENING_SCENE, new OpenScene(this));
         this.addScene(this.SELECT_SCENE, new SelectScene(this));
         this.addScene(this.GAME_SCENE, new Level(this, this.width, this.height));
-        this.changeScene(this.LOAD_SCENE);
+        this.changeScene(this.GAME_SCENE);
     }
     addScene(sceneName, scene) {
         this.scenes[sceneName] = scene;

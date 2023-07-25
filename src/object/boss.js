@@ -12,7 +12,7 @@ class Boss extends BaseObject {
     constructor(id, scene) {
         super(id, scene);
         this.config = null;
-        this.state = this.STATE_START;
+        this.state = this.STATE_ATIVE;
         this.hp = 10;
         this.maxHp = 10;
         this.hpNum = 2;
@@ -65,26 +65,25 @@ class Boss extends BaseObject {
 
         BaseObject.prototype.update.apply(this, arguments);
 
-        if (this.state == this.STATE_START) {
-            // 入场动画
-            this.start();
-        };
+        // if (this.state == this.STATE_START) {
+        //     // 入场动画
+        //     this.start();
+        // };
 
-        // 检查是否有对话
-        if (this.state == this.STATE_TALK) {
-            this.talk();
-        };
+        // // 检查是否有对话
+        // if (this.state == this.STATE_TALK) {
+        //     this.talk();
+        // };
 
-        if (this.state == this.STATE_READY) {
-            this.chargeEffect();
-            this.state = this.STATE_WAIT;
-        };
+        // if (this.state == this.STATE_READY) {
+        //     this.chargeEffect();
+        //     this.state = this.STATE_WAIT;
+        // };
 
         if (this.state == this.STATE_CHARHE) {
             this.cardEffect();
             this.state = this.STATE_WAIT;
         };
-        
     }
     draw() {
         if (!this.isExist)

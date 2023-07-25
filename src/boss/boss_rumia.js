@@ -24,6 +24,8 @@ class Rumia extends Boss {
         this.spriteNum = 0;
         this.beamNum = 1;
         this.nightWarblerType = 0;
+
+        this.normalNum = 5;
     }
     init() {
         this.config = BOSS_CONFIG[this.id];
@@ -69,7 +71,6 @@ class Rumia extends Boss {
         if (this.state == this.STATE_ATIVE) {
             if (this.cardIndex == -1) {
                 this.state = this.STAET_ATTACK1;
-                this.changeMode(this.MODE_ATTACK, 1);
             } else if (this.cardIndex == 0) {
                 this.changeMode(this.MODE_ATTACK, 2);
                 this.state = this.STATE_ATTACK2;
@@ -81,48 +82,66 @@ class Rumia extends Boss {
         };
 
         if (this.state == this.STAET_ATTACK1) {
-
-            if (this.frame_count < 200 && this.frame_count % 20 == 0) {
-                this.moonSpell();
-            } else if (this.frame_count < 300) {
-                this.state = this.STATE_ATTACK2;
-            };
+            this.darkSpell();
         };
         if (this.state == this.STATE_ATTACK2) {
-            if (this.frame_count % 20 == 0) {
-                this.nightWarbler();
-            }
+
         };
         if (this.state == this.STATE_ATTACK3) {
-            if (this.frame_count % 10 == 0) {
-                this.tripleorbs();
-            }
+
         }
         if (this.state == this.STATE_ATTACK4) {
-            if (this.frame_count % 10 == 0) {
-                this.tripleorbs();
-            }
-        }
+
+        };
+        // this.x += this.speed * this.scene.FPS * Math.cos(this.toRadian(this.angle));
+        // this.y += this.speed * this.scene.FPS * Math.sin(this.toRadian(this.angle));
     }
-    beam() {
+    normalAttack() {
+        if (this.frame_count % 10 == 0 && this.normalNum > 0) {
+            let bulletType = getBulletType(34);
+            let player = this.scene.player;
+            let ax = player.x - this.x;
+            let ay = player.y - this.y;
+            let angle = this.toAngle(Math.atan2(ay, ax));
+            for (let i = 0; i < 5; i++) {
+                for (let j = 0; j < 10; j++) {
+                    let params = {
+                        x: this.x,
+                        y: this.y,
+                        moveType: 2,
+                        speed: 180 + j * 10,
+                        angle: angle - i * 5 + this.frame_count,
+                        ...bulletType,
+                    };
+                    this.scene.enemyBulletManager.create(params);
+                }
+            };
+            this.normalNum--;
+        };
+
+    }
+    move() {
 
     }
     // 月符
     moonLightSpell() {
-        let bulletType = getBulletType(38);
-        for (let i = 0; i < 12; i++) {
-            let params = {
-                x: this.x,
-                y: this.y,
-                moveType: 2,
-                speed: 240,
-                angle: i * 36 + 12,
-                ...bulletType,
-            };
-            this.scene.enemyBulletManager.create(params);
-        }
+        this.changeMode(this.MODE_ATTACK, 1);
+        // let bulletType = getBulletType(38);
+        // for (let i = 0; i < 12; i++) {
+        //     let params = {
+        //         x: this.x,
+        //         y: this.y,
+        //         moveType: 2,
+        //         speed: 240,
+        //         angle: i * 36 + 12,
+        //         ...bulletType,
+        //     };
+        //     this.scene.enemyBulletManager.create(params);
+        // }
     }
     nightWarbler() {
+        if (this.frame_count % 10 != 0)
+            return 0;
         let bulletType = {};
         let start = 0;
         let step = 9;
@@ -143,17 +162,36 @@ class Rumia extends Boss {
                     x: this.x,
                     y: this.y,
                     moveType: 2,
-                    speed: 240 + j * 20,
+                    speed: 200 + i * 10 + j * 20,
                     angle: start + step * i,
                     ...bulletType,
                 };
                 this.scene.enemyBulletManager.create(params);
             }
         }
+        if (this.frame_count % 100 == 0) {
+            this.x = Math.random() * this.scene.width;
+        };
     }
     // 暗符 境界线
     darkSpell() {
-
+        for (let j = 0; j < 2; j++) {
+            let bulletType = j%2==0?getBulletType(70):getBulletType(72);
+            for (let i = 0; i < 36; i++) {
+                let params = {
+                    index:j,
+                    x: this.x,
+                    y: this.y,
+                    moveType: 17,
+                    speed: 200,
+                    angle: i * 10,
+                    ...bulletType,
+                    turn:j%2==0?this.angle+45:this.angle-45
+                };
+                this.scene.enemyBulletManager.create(params);
+            }
+        }
+        this.state = this.STATE_WAIT;
     }
     draw() {
         if (this.mode == this.MODE_NORMAL) {
