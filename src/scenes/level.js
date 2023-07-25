@@ -313,7 +313,7 @@ class Level extends BaseScene {
         this.player.checkCollisionWithEnemy();
         this.playerBulletManager.checkCollisonWithEnemy();
         //this.enemyBulletManager.checkCollisonWithPlayer();
-        //this.boss.checkCollisionWithPlayer();
+        this.boss.checkCollisionWithPlayer();
     }
     drawBackground() {
         if (this.frontBackground.y >= this.height) {

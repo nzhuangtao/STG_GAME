@@ -9,7 +9,7 @@ class Rumia extends Boss {
     MODE_RIGHT = 'right';
     MODE_ATTACK = 'attack';
 
-    STAET_CADR1 = 'card1';
+    STATE_CADR1 = 'card1';
     STATE_CARD2 = 'card2';
     STATE_CARD3 = 'card3';
     STATE_ATTACK1 = 'attack1';
@@ -36,11 +36,15 @@ class Rumia extends Boss {
         this.spriteHeight = 128;
 
         this.changeMode(this.MODE_NORMAL);
-
-        this.cardIndex = -1;
         this.cardList = this.config.cards;
         this.hpNum = this.cardList.length;
-
+        this.attackMode = [
+            { value: this.STATE_ATTACK1, type: 1 },
+            { value: this.STATE_CARD1, type: 2 },
+            { value: this.STATE_CARD2, type: 2 },
+            { value: this.STATE_CARD3, type: 2 }
+        ];
+        this.attackIndex = 0;
         Boss.prototype.init.apply(this, arguments);
     }
     changeMode(modeName, num = 1) {
@@ -68,26 +72,30 @@ class Rumia extends Boss {
     update() {
         Boss.prototype.update.apply(this, arguments);
         if (this.state == this.STATE_ATIVE) {
-            this.initAttack();
+            this.setAttackMode();
         };
         if (this.state == this.STATE_ATTACK1) {
             this.useAttackOne();
         };
         if (this.state == this.STATE_ATTACK2) {
-
+            console.log("普通2")
         };
         if (this.state == this.STAET_CARD1) {
-
+            console.log("弹幕1")
         };
         if (this.state == this.STATE_CARD2) {
-
+            console.log("弹幕2")
         };
         if (this.state == this.STATE_CARD3) {
-
+            console.log("弹幕3")
         };
     }
-    initAttack() {
-        this.state = this.STATE_ATTACK1;
+    setAttackMode() {
+        if (this.attackIndex >= this.attackMode.length) {
+            this.state = this.STATE_WAIT;
+        } else {
+            this.state = this.attackMode[this.attackIndex].value;
+        };
     }
     useAttackOne() {
         if (this.frame_count < 200 && this.frame_count % 20 == 0) {
@@ -115,7 +123,7 @@ class Rumia extends Boss {
             if (this.frame_count % 20 == 0) {
                 let bulletType = getBulletType(35);
                 for (let i = 0; i < 3; i++) {
-                    let randomAngle = Math.random()*20-10;
+                    let randomAngle = Math.random() * 20 - 10;
                     for (let j = 0; j < 11; j++) {
                         let params = {
                             x: this.x,
@@ -123,7 +131,7 @@ class Rumia extends Boss {
                             moveType: 1,
                             speed: 200 + i * 10,
                             angle: j * 18 + randomAngle,
-                            a:1+i*2,
+                            a: 1 + i * 2,
                             ...bulletType,
                         };
                         this.scene.enemyBulletManager.create(params);

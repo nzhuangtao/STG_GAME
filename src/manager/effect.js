@@ -10,6 +10,7 @@ class EffectManager extends BaseManager {
     create() {
         let effect = new Effect(this.effectIndex, this.scene);
         this.objects.set(this.effectIndex, effect);
+        effect.init();
         this.effectIndex++;
         return effect;
     }

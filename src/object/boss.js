@@ -8,6 +8,7 @@ class Boss extends BaseObject {
     STATE_CHARHE = 4;
     STATE_WAIT = 5;
     STATE_DIE = 6;
+    STATE_SPELL = 7;
     hpBarHeight = 20;
     constructor(id, scene) {
         super(id, scene);
@@ -17,7 +18,7 @@ class Boss extends BaseObject {
         this.maxHp = 10;
         this.hpNum = 2;
         this.hpBar = null;
-
+        this.cardName = '';
         this.startTalk = [];
         this.endTalk = [];
 
@@ -39,7 +40,6 @@ class Boss extends BaseObject {
         this.lastCardEffect = null;
         this.isExist = false;
         this.chargeEffectSprite = null;
-
     }
     init() {
         // 标记为入场
@@ -58,7 +58,7 @@ class Boss extends BaseObject {
         this.hpBar.drawRect(15, 15, this.scene.width - 30, this.hpBarHeight);
         this.scene.playerLayer.addChild(this.hpBar);
     }
-    changeMode(){
+    changeMode() {
         console.log("此函数需要重写")
     }
     update() {
@@ -77,6 +77,14 @@ class Boss extends BaseObject {
             this.talk();
         };
 
+        if (this.state == this.STATE_CHARHE) {
+            this.chargeEffect();
+            this.state = this.STATE_WAIT;
+        };
+        if (this.state == this.STATE_SPELL) {
+            this.spellEffect();
+            this.state = this.STATE_WAIT;
+        };
     }
     draw() {
         if (!this.isExist)
@@ -113,7 +121,7 @@ class Boss extends BaseObject {
                 this.state = this.STATE_DIE;
                 this.scene.notifyGameWin();
             } else {
-                this.state = this.STATE_ATIVE;
+                this.state = this.STATE_CHARHE;
             };
         }
     }
@@ -138,7 +146,7 @@ class Boss extends BaseObject {
             this.talkBar.endFill();
             this.scene.stage.addChild(this.talkBar);
             // 画人物名字
-            this.talkName = new PIXI.Text(talk.name+"：", { fill: 0xffffff, fontSize: 24 });
+            this.talkName = new PIXI.Text(talk.name + "：", { fill: 0xffffff, fontSize: 24 });
             this.talkName.x = 60;
             this.talkName.y = this.scene.height - 220;
             this.scene.stage.addChild(this.talkName);
@@ -155,7 +163,7 @@ class Boss extends BaseObject {
                 return 0;
             let texture = getImageByName(talk.image_stand);
             this.talkPreview.texture = texture;
-            this.talkName.text = talk.name+"：";
+            this.talkName.text = talk.name + "：";
             this.talkMessage.text = talk.message;
             this.lastTalkIndex = this.talkIndex;
         };
@@ -173,38 +181,29 @@ class Boss extends BaseObject {
     }
     chargeEffect() {
         this.chargeEffectSprite = this.scene.effectManager.create();
-        this.chargeEffectSprite.initSpellCharge({
+        this.chargeEffectSprite.initCharge({
             x: this.x,
             y: this.y,
-            type: 1,
         });
     }
-    cardEffect() {
-        // if (this.lastCardEffect) {
-        //     this.lastCardEffect.remove();
-        //     this.lastCardEffect = null;
-        // };
-        // this.lastCardEffect = this.scene.effectManager.create();
-        // let params = {
-        //     x: this.scene.width,
-        //     y: 0,
-        //     type: 2,
-        //     imageStand: this.imageStand,
-        //     alpha: 0.8,
-        //     cardName: this.cardList[this.cardIndex].name,
-        // };
-        // this.lastCardEffect.initSpellCard(params);
+    spellEffect() {
+        let spellEffect = this.scene.effectManager.create();
+        let params = {
+            x: this.scene.width,
+            y: 100,
+            imageStand: this.imageStand,
+            alpha: 1,
+        };
+        spellEffect.initSpell(params);
     }
     notifyActive() {
         this.state = this.STATE_ATIVE;
         this.frame_count = 0;
     }
     notifyGameWin() {
-        this.scene.getGameWinEvent();
-        this.state = this.STATE_WAIT;
+        
     }
     notifyDie() {
-
         this.isDie = true;
         this.state = this.STATE_TALK;
         this.talkList = this.endTalk;
@@ -213,12 +212,10 @@ class Boss extends BaseObject {
         // 检查是否存在结束时对话
         if (this.hpNum > 0) {
             this.hp = this.maxHp;
-            this.changeCard();
+            this.resetActive();
             this.hpNum--;
         } else {
-            debugger
             this.state = this.STATE_WAIT;
-            this.lastCardEffect.remove();
             this.playDieAnimation();
         }
     }
@@ -227,7 +224,6 @@ class Boss extends BaseObject {
         effect.initBossDestory({
             x: this.x,
             y: this.y,
-            type: 3,
         });
         this.remove();
     }
@@ -242,20 +238,25 @@ class Boss extends BaseObject {
             bullets.delete(bullet.id);
         });
     }
-    changeCard() {
-        this.cardIndex++;
-        this.state = this.STATE_CHARHE;
-        this.clearScreenBullet();
+    resetActive() {
+        this.attackIndex++;
+        let type = this.attackMode[this.attackIndex].type;
+        if (type == 2) {
+            this.cardName = this.cardList[this.cardIndex];
+            this.cardIndex++;
+            this.state = this.STATE_SPELL;
+        } else {
+            this.state = this.STATE_ATIVE;
+        };
     }
     checkCollisionWithPlayer() {
         let player = this.scene.player;
 
-        if (
-            this.state == this.STATE_TALK ||
-            this.state == this.STATE_WAIT ||
-            this.state == this.STATE_DIE) {
+        if (this.state == this.STATE_WAIT ||
+            this.state == this.STATE_START ||
+            this.state == this.STATE_CHARHE ||
+            this.state == this.STATE_TALK)
             return 0;
-        };
 
         if (this.hp <= 0) {
             this.die();

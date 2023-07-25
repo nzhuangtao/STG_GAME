@@ -9,19 +9,23 @@ class Effect extends BaseObject {
         this.type = 0;
         this.scale = 0;
         this.rotation = 0;
+        this.isChargeFinsh = false;
     }
     update() {
-        if (this.state != 0)
-            return 0;
+
         BaseObject.prototype.update.apply(this, arguments);
+     
         switch (this.type) {
             case 1:
                 this.enemyDestoryEffect();
                 break;
             case 2:
-                this.chargeEffect();
+                this.bossDestoryEffect();
                 break;
             case 3:
+                this.chargeEffect();
+                break;
+            case 4:
                 this.spellEffect();
                 break;
             default:
@@ -40,6 +44,11 @@ class Effect extends BaseObject {
         this.scene.effectManager.objects.delete(this.id);
         delete this;
     }
+    init() {
+        this.alpha = 1;
+        this.scale = 1;
+        this.turn = 0;
+    }
     initEnemyDestory(params) {
         this.x = params.x;
         this.y = params.y;
@@ -53,11 +62,24 @@ class Effect extends BaseObject {
         this.alpha = 1;
         this.scene.effectLayer.addChild(this.sprite);
     }
+    initBossDestory(params) {
+        this.x = params.x;
+        this.y = params.y;
+        this.type = 2;
+        let texture = getImageByName("shock_wave");
+        this.sprite = new Sprite(texture);
+        this.sprite.x = this.x;
+        this.sprite.y = this.y;
+        this.scale = 0;
+        this.sprite.anchor.set(0.5)
+        this.alpha = 1;
+        this.scene.effectLayer.addChild(this.sprite);
+    }
     initCharge(params) {
         let texture = getImageByName('sysimg_01')
         let rectangle = new Rectangle(0, 64, 128, 128);
         texture.frame = rectangle;
-        this.type = 2;
+        this.type = 3;
         this.sprite = new Sprite(texture);
         this.x = params.x;
         this.y = params.y;
@@ -69,31 +91,25 @@ class Effect extends BaseObject {
         this.scene.effectLayer.addChild(this.sprite);
     }
     initSpell(params) {
-        this.params = params;
         this.x = params.x;
-        this.y = params.y + 100;
+        this.y = params.y;
         this.speed = params.speed || 0;
-        this.type = params.type;
+        this.type = 4;
         let texture = getImageByName(params.imageStand);
         this.sprite = new Sprite(texture);
         this.sprite.x = this.x;
         this.sprite.y = this.y;
-        this.sprite.alpha = params.alpha || 1;
         this.scene.effectLayer.addChild(this.sprite);
 
-        this.cardNameSprite = new Text(params.cardName, { fill: 0xffffff });
-        this.cardNameSprite.x = this.scene.width - this.cardNameSprite.width - 50;
-        this.cardNameSprite.y = this.sprite.height;
-        this.scene.effectLayer.addChild(this.cardNameSprite);
     }
     chargeEffect() {
+        
         if (this.frame_count < 50) {
             this.scale -= 0.08;
-            this.sprite.scale.set(this.scale, this.scale);
         };
-        if (this.frame_count > 100 && !this.isSpellCard) {
+        if (this.frame_count > 100 && !this.isChargeFinsh) {
             this.scene.boss.notifyActive();
-            this.isSpellCard = true;
+            this.isChargeFinsh = true;
         };
         this.x = this.scene.boss.x;
         this.y = this.scene.boss.y;
@@ -105,13 +121,12 @@ class Effect extends BaseObject {
     spellEffect() {
         if (this.frame_count < 70) {
             this.x -= 8;
-            this.cardNameSprite.y -= 8;
         };
         if (this.frame_count > 150) {
             this.x -= 8;
-            if (this.x < -this.sprite.width) {
-                this.state = 1;
+            if (this.x < - this.sprite.width) {
                 this.scene.boss.notifyActive();
+                this.remove();
             };
         };
     }
@@ -121,6 +136,17 @@ class Effect extends BaseObject {
             this.alpha -= 0.1;
         } else {
             this.remove();
+        };
+    }
+    bossDestoryEffect() {
+        if (this.frame_count < 10) {
+            this.scale += 1;
+            if (this.alpha > 0) {
+                this.alpha -= 0.1;
+            };
+        } else {
+            this.remove();
+            this.scene.boss.notifyDie();
         };
     }
     remove() {
