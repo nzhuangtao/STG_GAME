@@ -1,4 +1,4 @@
-import { Sprite, Text, Rectangle } from "pixi.js";
+import { Sprite, Text, Rectangle, Graphics } from "pixi.js";
 import BaseObject from "./object";
 import { getImageByName } from "../imageLoader";
 
@@ -10,11 +10,13 @@ class Effect extends BaseObject {
         this.scale = 0;
         this.rotation = 0;
         this.isChargeFinsh = false;
+        this.spellBgSprite = null;
+        this.spellCardSprite = null;
     }
     update() {
 
         BaseObject.prototype.update.apply(this, arguments);
-     
+
         switch (this.type) {
             case 1:
                 this.enemyDestoryEffect();
@@ -101,9 +103,14 @@ class Effect extends BaseObject {
         this.sprite.y = this.y;
         this.scene.effectLayer.addChild(this.sprite);
 
+        this.spellBgSprite = new Graphics();
+        this.spellBgSprite.beginFill(0x000000, 0.8);
+        this.spellBgSprite.drawRect(0, 0, this.scene.width, this.scene.height);
+        this.spellBgSprite.endFill();
+        this.scene.effectLayer.addChild(this.spellBgSprite);
     }
     chargeEffect() {
-        
+
         if (this.frame_count < 50) {
             this.scale -= 0.08;
         };
@@ -150,6 +157,9 @@ class Effect extends BaseObject {
         };
     }
     remove() {
+        if (this.spellBgSprite) {
+            this.scene.effectLayer.removeChild(this.spellBgSprite);
+        };
         this.scene.effectLayer.removeChild(this.sprite)
         this.scene.effectManager.objects.delete(this.id);
         delete this;

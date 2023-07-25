@@ -236,10 +236,10 @@ class Level extends BaseScene {
             return 0;
         };
         BaseScene.prototype.update.apply(this, arguments);
-        // if (this.state == this.WIN_STATE && !this.isShowPanel) {
-        //     this.showGameWin();
-        //     this.isShowPanel = true;
-        // };
+        if (this.state == this.WIN_STATE) {
+            this.showGameWin();
+            this.state = this.WAIT_STATE;
+        };
         // if (this.state == this.WIN_STATE) {
         //     this.handleGameWin();
         //     this.updatePanel();
@@ -276,6 +276,13 @@ class Level extends BaseScene {
         this.enemyBulletManager.draw();
         this.boss.draw();
         this.effectManager.draw();
+    }
+    showCardName(){
+        
+        this.spellCardSprite = new Text("符卡名称", { fill: 0xffffff, fontSize: 24 });
+        this.spellCardSprite.x = this.scene.width - this.spellCardSprite.width - 20;
+        this.spellCardSprite.y = this.scene.height;
+        this.scene.effectLayer.addChild(this.spellCardSprite);
     }
     handleGameRun() {
         this.effectManager.update();
