@@ -26,12 +26,15 @@ class Enemy extends BaseObject {
         this.x = params.x;
         this.y = params.y;
         this.angle = params.angle;
-        this.num = params.num; 
+        this.num = params.num;
         BaseObject.prototype.init.apply(this, arguments);
     }
     update() {
-        let FPS = this.scene.FPS;
         BaseObject.prototype.update.apply(this, arguments);
+        this.move();
+    }
+    move() {
+        let FPS = this.scene.FPS;
         switch (this.moveType) {
             case 1:
                 this.actionWayOne();
@@ -45,47 +48,32 @@ class Enemy extends BaseObject {
             case 4:
                 this.actionWayFour();
                 break;
-            case 5:
-                this.actionWayFive();
-                break;
-            case 6:
-                this.actionWaySix();
-                break;
             default:
                 break;
         }
         let radian = this.toRadian(this.angle);
         this.x += this.speed * FPS * Math.cos(radian);
         this.y += this.speed * FPS * Math.sin(radian);
-
-        // for (let i = 0; i < this.bullets.length; i++) {
-        //     let bulletInfo = this.bullets[i];
-        //     if (this.frame_count >= bulletInfo.count) {
-        //         this.shot(bulletInfo);
-        //     }
-        // }
     }
-    shot(bulletInfo) {
-
-        if (bulletInfo.num <= 0)
-            return 0;
-        if (this.frame_count % bulletInfo.step != 0)
-            return 0;
-        switch (bulletInfo.moveType) {
-            case 1:
-                this.shotLinearBullet(bulletInfo);
-                break;
-            case 2:
-                this.shotScatteringBullet(bulletInfo);
-                break;
-            case 3:
-                this.shotRingBullet(bulletInfo);
-            default:
-                break;
-        }
+    shotLinearBullet(){
+        let angle = this.aimedPlayer();
+        for (let i = 0; i < 3; i++) {
+            let parmas = {
+                x: this.x,
+                y: this.y,
+                indexX: 3,
+                indexY: 4,
+                width: 16,
+                height: 16,
+                angle:angle+i*10,
+                speed: 200+i*20,
+                moveType: 1,
+            };
+            this.scene.enemyBulletManager.create(parmas);
+        };
     }
-    shotScatteringBullet(shotInfo) {
-        for (let i = 0; i < 6; i++) {
+    shotRingBullet() {
+        for (let i = 0; i < 12; i++) {
             let parmas = {
                 x: this.x,
                 y: this.y,
@@ -93,112 +81,40 @@ class Enemy extends BaseObject {
                 indexY: 4,
                 width: 16,
                 height: 16,
-                angle: 165 - (i + 2) * 15,
+                angle: i * 36,
+                speed: 200,
+                moveType: 1,
             };
-            parmas = Object.assign(shotInfo, parmas);
             this.scene.enemyBulletManager.create(parmas);
         };
     }
-    // 曲线弹
-    shotCurveBullet() {
-        let step = 360 / 6;
-        for (let i = 0; i < 6; i++) {
-            for (let j = 0; j < 3; j++) {
-                let parmas = {
-                    x: this.x,
-                    y: this.y,
-                    moveType: 4,
-                    speed: j * 10,
-                    angle: i * step + j * 10,
-                };
-                //parmas = Object.assign(parmas, bulletType);
-                this.scene.enemyBulletManager.create(parmas);
-            }
-        }
-    }
-    shotRingBullet(shotInfo) {
-        let step = 360 / 12;
-        for (let i = 0; i < 12; i++) {
-            let parmas = {
-                x: this.x,
-                y: this.y,
-                speed: 200 + i * 10,
-                angle: i * step,
-                indexX: 6,
-                indexY: 4,
-                width: 16,
-                height: 16,
-                moveType: 3,
-            };
-            this.scene.enemyBulletManager.create(parmas);
-        }
-    }
-    aimedPlayerBullet(bulletType, num) {
-        //      let bulletType = getBulletType(38);
-        // for (let i = 0; i < num; i++) {
-        //     let player = this.scene.player;
-        //     let ax = player.x - this.x;
-        //     let ay = player.y - this.y;
-        //     let angle = this.toAngle(Math.atan2(ay, ax));
-        //     let parmas = {
-        //         x: this.x,
-        //         y: this.y,
-        //         moveType: 2,
-        //         speed: 100,
-        //         angle,
-        //     };
-
-        //     this.scene.enemyBulletManager.create(parmas);
-        // }
-    }
-    shotLinearBullet() {
-        let bulletType = getBulletType(38);
-        let parmas = {
-            x: this.x,
-            y: this.y,
-            ...bulletType,
-            speed: 240,
-            angle: 90,
-            moveType: 1,
-            a: 2,
-        };
-        this.scene.enemyBulletManager.create(parmas);
-    }
-    linearMotion() {
-        this.y += this.speed * (1 / 60) * Math.sin();
+    aimedPlayer() {
+        let player = this.scene.player;
+        let ax = player.x - this.x;
+        let ay = player.y - this.y;
+        let angle = this.toAngle(Math.atan2(ay, ax));
+        return angle;
     }
     actionWayOne() {
         if (this.frame_count < 100) {
-            // 发射弹幕
-            
-        }
-        else if (this.frame_count < 200) {
-            this.speed -= 1;
-        }
-        else {
-            this.speed += 1;
-            this.angle = 270;
+            if (this.frame_count % 50 == 0) {
+                this.shotLinearBullet();
+            };
         };
-    }
-    actionWayTwo() {
-        if (this.frame_count % 120 == 0) {
-            this.angle += 180;
-            this.frame_count = 0;
-        };
-        if (this.frame_count % 10 == 0) {
-            // this.shot();
-        }
-    }
-    actionWayThree() {
-        if (this.frame_count > 100) {
+        if (this.frame_count > 100 && this.frame_count < 200) {
             this.speed += 3;
-            this.angle += 2;
+            this.angle += 1;
             if (this.angle > 90 + 45) {
                 this.angle = 90 + 45;
             }
         };
     }
-    actionWayFour() {
+    actionWayTwo() {
+        if (this.frame_count < 100) {
+            if (this.frame_count % 50 == 0) {
+                this.shotRingBullet();
+            };
+        };
         if (this.frame_count > 100) {
             this.speed += 3;
             this.angle -= 2;
@@ -207,7 +123,7 @@ class Enemy extends BaseObject {
             }
         }
     }
-    actionWayFive() {
+    actionWayThree() {
         if (this.frame_count > 150 + (this.index % 2) * 20) {
             this.speed = 200;
 
@@ -217,10 +133,13 @@ class Enemy extends BaseObject {
             return 0;
         }
         if (this.frame_count > 50 + (this.index % 2) * 20) {
+            if(this.frame_count % 20 == 0){
+                this.shotRingBullet();
+            };
             this.speed = 0;
         };
     }
-    actionWaySix() {
+    actionWayFour() {
         if (this.frame_count < 30) {
             return 0;
         };

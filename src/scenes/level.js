@@ -11,7 +11,7 @@ import { getImageByName } from '../imageLoader';
 import Rumia from '../boss/boss_rumia';
 import Mokou from '../boss/boss_mokou';
 class Level extends BaseScene {
-
+    READY_STATE = 0;
     ATIVE_STATE = 1; // 正在游戏
     PAUSE_STATE = 2; // 暂停游戏
     GAMEOVER_STATE = 3; // 游戏结束
@@ -63,9 +63,11 @@ class Level extends BaseScene {
         this.bombSprite = null;
         this.hpSprite = null;
         this.playerIndex = 0;
+        this.levelTitle = null;
+        this.isHasLevelTitle = false;
     }
     init(playerIndex) {
-        this.state = this.ATIVE_STATE;
+        this.state = this.READY_STATE;
         this.score = 0;
         this.playerIndex = playerIndex;
         this.player.init(playerIndex);
@@ -83,7 +85,7 @@ class Level extends BaseScene {
         // 初始化侧边栏
         this.initSide();
         this.initResultPanel();
-
+        this.initLevelTitle();
     }
     nextLevel() {
         this.clearLevel();
@@ -228,32 +230,36 @@ class Level extends BaseScene {
 
     }
     update() {
-        BaseScene.prototype.update.apply(this, arguments);
         this.drawBackground();
-        if (this.state == this.WIN_STATE && !this.isShowPanel) {
-            this.showGameWin();
-            this.isShowPanel = true;
+        if (this.state == this.READY_STATE) {
+            this.showLevelTitle();
+            return 0;
         };
-        if (this.state == this.WIN_STATE) {
-            this.handleGameWin();
-            this.updatePanel();
-        };
+        BaseScene.prototype.update.apply(this, arguments);
+        // if (this.state == this.WIN_STATE && !this.isShowPanel) {
+        //     this.showGameWin();
+        //     this.isShowPanel = true;
+        // };
+        // if (this.state == this.WIN_STATE) {
+        //     this.handleGameWin();
+        //     this.updatePanel();
+        // };
 
-        if (this.state == this.PAUSE_STATE && !this.isShowPanel) {
-            this.showPause();
-            this.isShowPanel = true;
-        };
-        if (this.state == this.PAUSE_STATE) {
-            this.handleGamePause();
-            this.updatePanel();
-        };
+        // if (this.state == this.PAUSE_STATE && !this.isShowPanel) {
+        //     this.showPause();
+        //     this.isShowPanel = true;
+        // };
+        // if (this.state == this.PAUSE_STATE) {
+        //     this.handleGamePause();
+        //     this.updatePanel();
+        // };
 
-        if (this.state == this.GAMEOVER_STATE) {
-            this.showGameOver();
-        };
-        if (this.state == this.GAMEOVER_STATE) {
-            this.handleGameover();
-        };
+        // if (this.state == this.GAMEOVER_STATE) {
+        //     this.showGameOver();
+        // };
+        // if (this.state == this.GAMEOVER_STATE) {
+        //     this.handleGameover();
+        // };
 
         if (this.state == this.ATIVE_STATE) {
             this.handleGameRun();
@@ -268,8 +274,46 @@ class Level extends BaseScene {
         this.playerBulletManager.draw();
         this.enemyManager.draw();
         this.enemyBulletManager.draw();
-        //this.boss.draw();
+        this.boss.draw();
         this.effectManager.draw();
+    }
+    handleGameRun() {
+        this.effectManager.update();
+        this.player.update();
+        this.playerBulletManager.update();
+        this.enemyManager.update();
+        this.enemyBulletManager.update();
+
+        // 检查是否需要生成敌人
+        // if (this.enemyIndex < this.enemyList.length) {
+        //     for (let i = 0; i < enemyList.length; i++) {
+        //         let enemy = this.enemyList[i];
+        //         if (!enemy.isExist && enemy.count <= this.frame_count) {
+        //             // 标记为已生成
+        //             enemy.isExist = true;
+        //             this.enemyManager.create(enemy);
+        //             // 已生成敌人数目增加
+        //             this.enemyIndex++;
+        //         };
+        //     };
+        //     if (this.enemy_index == this.enemyList.length) {
+        //         this.frame_count = 0;
+        //     };
+        // };
+        if (!this.boss.isExist) {
+            this.boss.init();
+            this.frame_count = 0;
+        } else {
+            this.boss.updateHp();
+            this.boss.update();
+        };
+        // console.log("特效数目"+this.effectManager.objects.size);
+        // console.log("敌人数目:" + this.enemyManager.objects.size);
+        // console.log("子弹数目:" + this.enemyBulletManager.objects.size);
+        this.player.checkCollisionWithEnemy();
+        this.playerBulletManager.checkCollisonWithEnemy();
+        //this.enemyBulletManager.checkCollisonWithPlayer();
+        //this.boss.checkCollisionWithPlayer();
     }
     drawBackground() {
         if (this.frontBackground.y >= this.height) {
@@ -280,42 +324,6 @@ class Level extends BaseScene {
         };
         this.frontBackground.y += 2;
         this.backBackground.y += 2;
-    }
-    handleGameRun() {
-        this.effectManager.update();
-        this.player.update();
-        this.playerBulletManager.update();
-        this.enemyManager.update();
-        this.enemyBulletManager.update();
-        // if (!this.boss.isExist) {
-        //     this.boss.init();
-        // } else {
-        //     this.boss.updateHp();
-        //     this.boss.update();
-        // };
-        // 检查是否需要生成敌人
-        if (this.enemyIndex < this.enemyList.length) {
-            for (let i = 0; i < enemyList.length; i++) {
-                let enemy = this.enemyList[i];
-                if (!enemy.isExist && enemy.count <= this.frame_count) {
-                    // 标记为已生成
-                    enemy.isExist = true;
-                    this.enemyManager.create(enemy);
-                    // 已生成敌人数目增加
-                    this.enemyIndex++;
-                };
-            };
-            if (this.enemy_index == this.enemyList.length) {
-                this.frame_count = 0;
-            };
-        };
-        // console.log("特效数目"+this.effectManager.objects.size);
-        // console.log("敌人数目:" + this.enemyManager.objects.size);
-        //console.log("子弹数目:" + this.enemyBulletManager.objects.size);
-        this.player.checkCollisionWithEnemy();
-        this.playerBulletManager.checkCollisonWithEnemy();
-        //this.enemyBulletManager.checkCollisonWithPlayer();
-        //this.boss.checkCollisionWithPlayer();
     }
     handleGameWin() {
 
@@ -407,6 +415,37 @@ class Level extends BaseScene {
     }
     isHasNextLevel() {
         return this.BOSS_NUM > this.levelIndex;
+    }
+    initLevelTitle() {
+        this.levelTitle = new PIXI.Container();
+        let bg = new PIXI.Graphics();
+        bg.beginFill(0x000000, 0.8);
+        bg.drawRect(15, this.height / 2 - 120, this.width - 30, 240);
+        bg.endFill();
+        let title = new PIXI.Text("第一章", { fill: 0xffffff, fontSize: 20 });
+        title.x = this.width / 2 - title.width / 2;
+        title.y = this.height / 2 - 100;
+        let subTitle = new PIXI.Text("梦幻夜行绘卷 宵暗的妖怪", { fill: 0xffffff, fontSize: 16 });
+        subTitle.x = this.width / 2 - subTitle.width / 2;
+        subTitle.y = this.height / 2;
+        this.levelTitle.addChild(bg);
+        this.levelTitle.addChild(title);
+        this.levelTitle.addChild(subTitle);
+    }
+    showLevelTitle() {
+        if (this.isHasLevelTitle) {
+            if (this.levelTitle.alpha > 0) {
+                if (this.frame_count % 10 == 0) {
+                    this.levelTitle.alpha -= 0.01;
+                };
+            } else {
+                this.state = this.ATIVE_STATE;
+                this.playerLayer.removeChild(this.levelTitle);
+            };
+        } else {
+            this.playerLayer.addChild(this.levelTitle);
+            this.isHasLevelTitle = true;
+        }
     }
     showGameOver() {
         this.isShowResult = true;

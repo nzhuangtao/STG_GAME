@@ -11,92 +11,38 @@ class EnemyBullet extends BaseObject {
         this.circleSpeed = 0;
     }
     init(params) {
-        this.params = params;
-        this.index = params.index;
-        this.scale = params.scale || 1;
-        this.moveType = params.moveType || 1;
+        this.index = params.index || 0;
         this.x = params.x;
         this.y = params.y;
+        this.scale = params.scale || 1;
+        this.turn = params.turn || 0;
         this.angle = params.angle;
         this.indexX = params.indexX;
         this.indexY = params.indexY;
-        this.a = params.a;
+        this.a = params.a || 0;
         this.spriteWidth = params.width;
         this.spriteHeight = params.height;
-        //this.turn = this.angle - 90;
         this.speed = params.speed;
+        this.moveType = params.moveType || 1;
         this.aimed = false;
         this.image = params.image || 'bullet';
-        this.turn = params.turn || 0;
-        this.scale = params.scale || 1;
         BaseObject.prototype.init.apply(this, arguments);
-        //this.sprite.scale.set(this.scale);
-        //this.sprite.anchor.set(params.anchor || 0.5);
     }
-    run() {
+    move() {
+
         switch (this.moveType) {
             case 1:
-                this.linearMove();
+                this.linearBullet();
                 break;
-            case 2:
-                this.scattering();
-                break;
-            case 3:
-                this.scattering()
-                break;
-            case 4:
-                this.curve();
-                break;
-            case 5:
-                this.leaf();
-                break;
-            case 6:
-                this.shotLeafTwoDelay();
-                break;
-            case 7:
-                this.shotSpawner();
-                break;
-            case 8:
-                this.shotThreeStage();
-                break;
-            case 9:
-                this.starSpin();
-                break;
-            case 10:
-                this.star();
-                break;
-            case 11:
-                this.starSpanBig();
-                break;
-            case 12:
-                this.triSpin();
-                break;
-            case 13:
-                this.twistSpawner();
-                break;
-            case 14:
-                this.twistStar();
-                break;
-            case 15:
-                this.twistDelay();
-                break;
-            case 16:
-                this.moonBeam();
-                break;
-            case 17:
-                this.darkSpell();
-                break;
+
             default:
                 break;
         }
     }
     update() {
         BaseObject.prototype.update.apply(this, arguments)
-        this.run();
+        this.move();
         this.removeOutOfStage();
-        if (this.frame_count > 10000) {
-            this.remove();
-        };
     }
     draw() {
         this.sprite.x = this.x;
@@ -108,9 +54,17 @@ class EnemyBullet extends BaseObject {
         this.scene.enemyBulletManager.objects.delete(this.id);
         delete this;
     }
-    linearMove() {
-        this.y += this.speed * this.FPS;
+    aimedPlayer() {
+        let player = this.scene.player;
+        let ax = player.x - this.x;
+        let ay = player.y - this.y;
+        let angle = this.toAngle(Math.atan2(ay, ax));
+        return angle;
+    }
+    linearBullet() {
         this.speed += this.a;
+        this.x += this.speed * Math.cos(this.toRadian(this.angle)) * this.scene.FPS;
+        this.y += this.speed * Math.sin(this.toRadian(this.angle)) * this.scene.FPS;
     }
     removeOutOfStage() {
         if (this.outOfStage()) {

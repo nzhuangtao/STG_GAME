@@ -12,7 +12,7 @@ class Boss extends BaseObject {
     constructor(id, scene) {
         super(id, scene);
         this.config = null;
-        this.state = this.STATE_ATIVE;
+        this.state = this.STATE_START;
         this.hp = 10;
         this.maxHp = 10;
         this.hpNum = 2;
@@ -42,11 +42,13 @@ class Boss extends BaseObject {
 
     }
     init() {
+        // 标记为入场
         this.isExist = true;
-        // 初始化血条
+        // 设置初始位置
         this.x = this.scene.width / 2;
-        this.y = this.spriteHeight;
-        //debugger
+        this.y = 0 - this.spriteHeight;
+        this.speed = 200;
+        // 初始化血条
         this.initHpBar();
         BaseObject.prototype.init.apply(this, arguments);
     }
@@ -65,25 +67,16 @@ class Boss extends BaseObject {
 
         BaseObject.prototype.update.apply(this, arguments);
 
-        // if (this.state == this.STATE_START) {
-        //     // 入场动画
-        //     this.start();
-        // };
-
-        // // 检查是否有对话
-        // if (this.state == this.STATE_TALK) {
-        //     this.talk();
-        // };
-
-        // if (this.state == this.STATE_READY) {
-        //     this.chargeEffect();
-        //     this.state = this.STATE_WAIT;
-        // };
-
-        if (this.state == this.STATE_CHARHE) {
-            this.cardEffect();
-            this.state = this.STATE_WAIT;
+        if (this.state == this.STATE_START) {
+            // 入场动画
+            this.start();
         };
+
+        // 检查是否有对话
+        if (this.state == this.STATE_TALK) {
+            this.talk();
+        };
+
     }
     draw() {
         if (!this.isExist)
@@ -108,6 +101,7 @@ class Boss extends BaseObject {
         if (this.y >= this.spriteHeight) {
             this.y = this.spriteHeight;
             this.state = this.STATE_TALK;
+            this.speed = 0
         };
     }
     talk() {
@@ -119,7 +113,7 @@ class Boss extends BaseObject {
                 this.state = this.STATE_DIE;
                 this.scene.notifyGameWin();
             } else {
-                this.state = this.STATE_READY;
+                this.state = this.STATE_ATIVE;
             };
         }
     }
@@ -186,20 +180,20 @@ class Boss extends BaseObject {
         });
     }
     cardEffect() {
-        if (this.lastCardEffect) {
-            this.lastCardEffect.remove();
-            this.lastCardEffect = null;
-        };
-        this.lastCardEffect = this.scene.effectManager.create();
-        let params = {
-            x: this.scene.width,
-            y: 0,
-            type: 2,
-            imageStand: this.imageStand,
-            alpha: 0.8,
-            cardName: this.cardList[this.cardIndex].name,
-        };
-        this.lastCardEffect.initSpellCard(params);
+        // if (this.lastCardEffect) {
+        //     this.lastCardEffect.remove();
+        //     this.lastCardEffect = null;
+        // };
+        // this.lastCardEffect = this.scene.effectManager.create();
+        // let params = {
+        //     x: this.scene.width,
+        //     y: 0,
+        //     type: 2,
+        //     imageStand: this.imageStand,
+        //     alpha: 0.8,
+        //     cardName: this.cardList[this.cardIndex].name,
+        // };
+        // this.lastCardEffect.initSpellCard(params);
     }
     notifyActive() {
         this.state = this.STATE_ATIVE;

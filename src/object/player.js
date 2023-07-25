@@ -104,7 +104,7 @@ class Player extends BaseObject {
         this.state = this.DIE_STATE;
     }
     draw() {
-        if (this.frame_count % 5 == 0) {
+        if (this.frame_count % 8 == 0) {
             this.indexX += 1;
             if (this.indexX > 7) {
                 this.indexX = 0;

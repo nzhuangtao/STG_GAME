@@ -31,16 +31,16 @@ class PlayerBulletManager extends BaseManager {
             return 0;
         this.objects.forEach((bullet) => {
             this.scene.enemyManager.objects.forEach((enemy) => {
-                if(bullet.checkCollision(enemy)){
+                if (bullet.checkCollision(enemy)) {
                     // 删除子弹
                     bullet.remove();
                     this.objects.delete(bullet.id);
+                    // 击毁效果
                     let effect = this.scene.effectManager.create();
-                    // console.log(this.scene.effectManager)
                     effect.initEnemyDestory(
                         {
-                            x:enemy.x,
-                            y:enemy.y,
+                            x: enemy.x,
+                            y: enemy.y,
                         }
                     );
                     this.scene.addScore(enemy.score);

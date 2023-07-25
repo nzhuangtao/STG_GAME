@@ -9,26 +9,25 @@ class Rumia extends Boss {
     MODE_RIGHT = 'right';
     MODE_ATTACK = 'attack';
 
-    STAET_ATTACK1 = 'attack1';
+    STAET_CADR1 = 'card1';
+    STATE_CARD2 = 'card2';
+    STATE_CARD3 = 'card3';
+    STATE_ATTACK1 = 'attack1';
     STATE_ATTACK2 = 'attack2';
-    STATE_ATTACK3 = 'attack3';
-    STATE_ATTACK4 = 'attack4';
-
     constructor(id, scene) {
         super(id, scene);
         this.config = null;
         this.image = 'rumia';
         this.imageStand = 'rumia_stand';
         this.config = null;
-        this.mode = this.MODE_NORMAL;
+        this.mode = '';
         this.spriteNum = 0;
         this.beamNum = 1;
         this.nightWarblerType = 0;
-
-        this.normalNum = 5;
     }
     init() {
         this.config = BOSS_CONFIG[this.id];
+
         let talkConfig = TALK_CONFIG[this.scene.playerIndex];
         this.startTalk = talkConfig.startTalk;
         this.endTalk = talkConfig.endTalk;
@@ -48,6 +47,7 @@ class Rumia extends Boss {
         if (this.mode == modeName)
             return 0;
         this.mode = modeName;
+
         let info = this.config[modeName];
 
         if (this.mode == this.MODE_ATTACK) {
@@ -63,41 +63,34 @@ class Rumia extends Boss {
             this.indexX = info.indexX;
             this.indexY = info.indexY;
             this.spriteNum = info.num;
-        }
+        };
     }
     update() {
         Boss.prototype.update.apply(this, arguments);
-
         if (this.state == this.STATE_ATIVE) {
-            if (this.cardIndex == -1) {
-                this.state = this.STAET_ATTACK1;
-            } else if (this.cardIndex == 0) {
-                this.changeMode(this.MODE_ATTACK, 2);
-                this.state = this.STATE_ATTACK2;
-            } else if (this.cardIndex == 1) {
-                this.state = this.STATE_ATTACK3;
-            } else if (this.cardIndex == 2) {
-                this.state = this.STATE_ATTACK4;
-            }
+            this.initAttack();
         };
-
-        if (this.state == this.STAET_ATTACK1) {
-            this.darkSpell();
+        if (this.state == this.STATE_ATTACK1) {
+            this.useAttackOne();
         };
         if (this.state == this.STATE_ATTACK2) {
 
         };
-        if (this.state == this.STATE_ATTACK3) {
-
-        }
-        if (this.state == this.STATE_ATTACK4) {
+        if (this.state == this.STAET_CARD1) {
 
         };
-        // this.x += this.speed * this.scene.FPS * Math.cos(this.toRadian(this.angle));
-        // this.y += this.speed * this.scene.FPS * Math.sin(this.toRadian(this.angle));
+        if (this.state == this.STATE_CARD2) {
+
+        };
+        if (this.state == this.STATE_CARD3) {
+
+        };
     }
-    normalAttack() {
-        if (this.frame_count % 10 == 0 && this.normalNum > 0) {
+    initAttack() {
+        this.state = this.STATE_ATTACK1;
+    }
+    useAttackOne() {
+        if (this.frame_count < 200 && this.frame_count % 20 == 0) {
             let bulletType = getBulletType(34);
             let player = this.scene.player;
             let ax = player.x - this.x;
@@ -108,17 +101,39 @@ class Rumia extends Boss {
                     let params = {
                         x: this.x,
                         y: this.y,
-                        moveType: 2,
-                        speed: 180 + j * 10,
-                        angle: angle - i * 5 + this.frame_count,
+                        moveType: 1,
+                        speed: 200 + j * 10,
+                        angle: i * 5 + angle,
                         ...bulletType,
                     };
                     this.scene.enemyBulletManager.create(params);
                 }
             };
-            this.normalNum--;
         };
-
+        //
+        if (this.frame_count > 200 && this.frame_count < 400) {
+            if (this.frame_count % 20 == 0) {
+                let bulletType = getBulletType(35);
+                for (let i = 0; i < 3; i++) {
+                    let randomAngle = Math.random()*20-10;
+                    for (let j = 0; j < 11; j++) {
+                        let params = {
+                            x: this.x,
+                            y: this.y,
+                            moveType: 1,
+                            speed: 200 + i * 10,
+                            angle: j * 18 + randomAngle,
+                            a:1+i*2,
+                            ...bulletType,
+                        };
+                        this.scene.enemyBulletManager.create(params);
+                    }
+                };
+            }
+        };
+        if (this.frame_count > 400) {
+            this.frame_count = 0;
+        };
     }
     move() {
 
@@ -176,17 +191,17 @@ class Rumia extends Boss {
     // 暗符 境界线
     darkSpell() {
         for (let j = 0; j < 2; j++) {
-            let bulletType = j%2==0?getBulletType(70):getBulletType(72);
+            let bulletType = j % 2 == 0 ? getBulletType(70) : getBulletType(72);
             for (let i = 0; i < 36; i++) {
                 let params = {
-                    index:j,
+                    index: j,
                     x: this.x,
                     y: this.y,
                     moveType: 17,
                     speed: 200,
                     angle: i * 10,
                     ...bulletType,
-                    turn:j%2==0?this.angle+45:this.angle-45
+                    turn: j % 2 == 0 ? this.angle + 45 : this.angle - 45
                 };
                 this.scene.enemyBulletManager.create(params);
             }
