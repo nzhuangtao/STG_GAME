@@ -76,14 +76,18 @@ class Boss extends BaseObject {
         if (this.state == this.STATE_TALK) {
             this.talk();
         };
-
+        if (this.state == this.STATE_READY) {
+            if (this.frame_count > 100) {
+                this.state = this.STATE_ATIVE;
+            };
+        }
         if (this.state == this.STATE_CHARHE) {
             this.chargeEffect();
             this.state = this.STATE_WAIT;
         };
         if (this.state == this.STATE_SPELL) {
             this.spellEffect();
-            this.state = this.STATE_WAIT;
+            this.state = this.STATE_READY;
         };
     }
     draw() {
@@ -201,7 +205,7 @@ class Boss extends BaseObject {
         this.frame_count = 0;
     }
     notifyGameWin() {
-        
+
     }
     notifyDie() {
         this.isDie = true;
@@ -240,19 +244,23 @@ class Boss extends BaseObject {
     }
     resetActive() {
         this.attackIndex++;
+        this.frame_count = 0;
         let type = this.attackMode[this.attackIndex].type;
         if (type == 2) {
             this.cardName = this.cardList[this.cardIndex];
             this.cardIndex++;
             this.state = this.STATE_SPELL;
         } else {
-            this.state = this.STATE_ATIVE;
+            debugger
+            this.state = this.STATE_READY;
         };
     }
     checkCollisionWithPlayer() {
         let player = this.scene.player;
-
-        if (this.state == this.STATE_WAIT ||
+        if (
+            this.state == this.STATE_READY ||
+            this.state == this.STATE_SPELL ||
+            this.state == this.STATE_WAIT ||
             this.state == this.STATE_START ||
             this.state == this.STATE_CHARHE ||
             this.state == this.STATE_TALK)

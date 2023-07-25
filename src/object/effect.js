@@ -97,17 +97,16 @@ class Effect extends BaseObject {
         this.y = params.y;
         this.speed = params.speed || 0;
         this.type = 4;
-        let texture = getImageByName(params.imageStand);
-        this.sprite = new Sprite(texture);
-        this.sprite.x = this.x;
-        this.sprite.y = this.y;
-        this.scene.effectLayer.addChild(this.sprite);
-
         this.spellBgSprite = new Graphics();
         this.spellBgSprite.beginFill(0x000000, 0.8);
         this.spellBgSprite.drawRect(0, 0, this.scene.width, this.scene.height);
         this.spellBgSprite.endFill();
         this.scene.effectLayer.addChild(this.spellBgSprite);
+        let texture = getImageByName(params.imageStand);
+        this.sprite = new Sprite(texture);
+        this.sprite.x = this.x;
+        this.sprite.y = this.y;
+        this.scene.effectLayer.addChild(this.sprite);
     }
     chargeEffect() {
 
