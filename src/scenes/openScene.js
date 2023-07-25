@@ -16,6 +16,7 @@ class OpenScene extends BaseScene {
         this.frame_count++;
         if (this.game.input.iskeyDown(this.game.input.BUTTON_Z)) {
             this.game.stage.removeChild(this.layer);
+            this.game.playSound('select');
             this.game.changeScene(this.game.SELECT_SCENE);
         };
     }

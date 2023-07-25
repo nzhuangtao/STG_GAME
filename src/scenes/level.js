@@ -83,6 +83,7 @@ class Level extends BaseScene {
         // 初始化侧边栏
         this.initSide();
         this.initResultPanel();
+        this.game.playBgm("bgm");
     }
     nextLevel() {
         this.clearLevel();

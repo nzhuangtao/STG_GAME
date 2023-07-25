@@ -49,6 +49,7 @@ class Player extends BaseObject {
         if (this.game.input.iskeyDown(this.game.input.BUTTON_Z)) {
             if (this.state == this.ACTIVE_STATE) {
                 this.shot();
+                this.game.playSound("shot");
             };
             if (this.state == this.TALK_STATE) {
                 if (this.frame_count % 5 == 0) {
